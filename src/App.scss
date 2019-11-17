@@ -1,0 +1,68 @@
+html, body, #root {
+  height: 100%;
+}
+
+.App {
+  height: 100%;
+  width: 100%;
+  background-color: #607D8B;
+
+  font-family: 'Bebas Neue', cursive;
+  font-size: 40px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.todos {
+  width: 100%;
+}
+
+.todo {
+  display: flex;
+  align-items: center;
+}
+
+.todo > input {
+  font-family: inherit;
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  outline: none;
+  padding: 0px;
+  width: 100%;
+  caret-color: #F44336;
+}
+
+.todo > input::placeholder {
+  color: #616161;
+}
+
+input:after {
+  content: "whats up";
+  height: 10px;
+  width: 10px;
+  background-color: white;
+  z-index: 1;
+}
+
+.todo:hover {
+  background-color: rgba(256, 256, 256, .2);
+}
+
+.todo > .action {
+  visibility: hidden;
+}
+
+.todo:hover > .action {
+  visibility: visible;
+}
+
+.completed {
+  text-decoration: line-through;
+}
+
+.createButton {
+  position: fixed;
+  left: 48px;
+  bottom: 48px;
+} 
