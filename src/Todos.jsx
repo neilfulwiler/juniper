@@ -9,14 +9,8 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import classNames from 'classnames';
-
-
-const initialTodos = [
-  { name: 'link to shard transitions from i/titan', id: 0 },
-  { name: 'initialize traces in mqtt', id: 1 },
-  { name: 'remove delta payload fields from queue entry', id: 2 },
-  { name: 'roll out one iris', id: 3 },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { ADD_TODO, DELETE_TODO } from './redux/actions';
 
 function Todo({ name, editing, onDelete }) {
   const [value, setValue] = useState(name);
@@ -87,25 +81,28 @@ function CreateTodo({ addTodo }) {
 }
 
 export default function Todos() {
-  const [todos, setTodos] = useState(initialTodos);
+  const todos = useSelector((state) => state.todos);
+  const dispatch = useDispatch();
   const [editing, setEditing] = useState(undefined);
   const addTodo = useCallback(() => {
-    setTodos(todos.concat({ name: '', id: todos.length }));
-    setEditing(false);
-  }, [todos, setTodos, setEditing]);
+    const id = todos.length;
+    dispatch({ type: ADD_TODO, name: '', id });
+    setEditing(id);
+  }, [todos, dispatch, setEditing]);
+  const deleteTodo = useCallback((id) => {
+    dispatch({ type: DELETE_TODO, id });
+    if (id === editing) {
+      setEditing(undefined);
+    }
+  }, [dispatch]);
   return (
-    <div className="{"
     <div className="todos">
       {todos.map(({ name, id }, idx) => (
         <Todo
           key={id}
           name={name}
           editing={idx === editing}
-          onDelete={() => setTodos(
-            todos
-              .slice(0, idx)
-              .concat(todos.slice(idx + 1, todos.length)),
-          )}
+          onDelete={() => deleteTodo(id)}
         />
       ))}
       <CreateTodo addTodo={addTodo} />

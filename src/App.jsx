@@ -4,7 +4,9 @@ import Todos from './Todos';
 
 function App() {
   return (
-    <Todos />
+    <div className="App">
+      <Todos />
+    </div>
   );
 }
 
