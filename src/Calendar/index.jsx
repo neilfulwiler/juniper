@@ -7,7 +7,7 @@ import './styles.scss';
 import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { useEventListener } from '../utils';
+import { useColors, getEventsByName, useEventListener } from '../utils';
 import { addEvent, deleteEvent, updateEvent } from '../redux/actions';
 
 
@@ -61,12 +61,14 @@ function useMouseSelection(onSelecting, onSelection) {
   return onMouseDown;
 }
 
+
 function Event({
   timeSlots,
   event,
   editing,
   onDelete,
   onUpdateEvent,
+  style,
   ...rest
 }) {
   const eventRef = useRef();
@@ -81,11 +83,14 @@ function Event({
         ref={eventRef}
         key={event.id}
         style={{
-          position: 'absolute',
-          marginLeft: '12px',
-          top: `${eventTop}px`,
-          height: `${eventHeight}px`,
-          width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+          ...{
+            position: 'absolute',
+            marginLeft: '12px',
+            top: `${eventTop}px`,
+            height: `${eventHeight}px`,
+            width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+          },
+          ...style,
         }}
         {...rest}
       >
@@ -162,6 +167,8 @@ export default function Calendar() {
 
   const onMouseDown = useMouseSelection(onSelecting, onSelection);
 
+  const getColor = useColors();
+
   return (
     <div className="timeSlots" ref={timeSlotsRef} onMouseDown={onMouseDown}>
       {timeSlots.map((timeSlot) => (
@@ -171,6 +178,7 @@ export default function Calendar() {
       ))}
       {events.map((event) => (
         <Event
+          key={event.id}
           timeSlots={timeSlots}
           event={event}
           onClick={() => setEditing(event.id)}
@@ -185,6 +193,7 @@ export default function Calendar() {
             dispatch(updateEvent(event.id, { title }));
           }}
           editing={editing === event.id}
+          style={{ backgroundColor: getColor(event.title) }}
         />
       ))}
       {selection !== undefined && ((s) => (
@@ -193,6 +202,7 @@ export default function Calendar() {
           event={s}
           editing={false}
           className="selection"
+          style={{ backgroundColor: getColor(s.title) }}
         />
       ))(selection)}
     </div>

@@ -1,4 +1,52 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+
+export const colors = [
+  {
+    color: 'rgb(232, 193, 160)',
+  },
+  {
+    color: 'rgb(244, 117, 96)',
+  },
+  {
+    color: 'rgb(232, 168, 56)',
+  },
+  {
+    color: 'rgb(224, 210, 85)',
+  },
+  {
+    color: 'rgb(232, 168, 56)',
+  },
+];
+
+export function getEventsByName(events) {
+  const byName = events.reduce((acc, event) => {
+    const { title } = event;
+    if (!acc.hasOwnProperty(title)) {
+      acc[title] = [];
+    }
+    acc[title].push(event);
+    return acc;
+  }, {});
+
+  Object.values(byName).forEach((list) => list.sort((a, b) => a.startTime.diff(b.startTime)));
+
+  const eventsByName = Object.entries(byName);
+  eventsByName.sort(([_titleA, a], [_titleB, b]) => a[0].startTime.diff(b[0].startTime));
+  return eventsByName;
+}
+
+export function useColors() {
+  const events = useSelector((state) => state.events);
+  const eventsByName = getEventsByName(events).map(([title]) => title);
+  return useCallback((title) => {
+    if (title === undefined) {
+      return '#BDBDBD';
+    }
+    const { color } = colors[eventsByName.indexOf(title)];
+    return color;
+  }, [events]);
+}
 
 export function useEventListener(eventName, handler, element = window) {
   // Create a ref that stores handler
