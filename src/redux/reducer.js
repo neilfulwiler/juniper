@@ -61,6 +61,7 @@ export default function todoApp(state = initialState, action) {
         ...state,
         user: undefined,
         todos: [],
+        events: [],
       };
 
     default:
