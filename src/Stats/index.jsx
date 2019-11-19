@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
 import { ResponsivePie } from '@nivo/pie';
 import { useSelector } from 'react-redux';
 import { getEventsByName, useColors } from '../utils';
@@ -143,9 +146,29 @@ function MyResponsivePie() {
 }
 
 export default function Stats() {
+  const [showStats, setShowStats] = useState(false);
   return (
     <div className="stats">
-      <MyResponsivePie />
+      {!showStats
+        && (
+          <div className="showStatsButton-container">
+            <IconButton onClick={() => setShowStats(!showStats)}>
+              <BarChartIcon />
+            </IconButton>
+          </div>
+        )}
+      {showStats
+        && (
+          <div style={{ height: '100%', width: '100%', display: 'flex' }}>
+            <MyResponsivePie />
+            <IconButton
+              className="closeStatsButton"
+              onClick={() => setShowStats(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </div>
+        )}
     </div>
   );
 }
