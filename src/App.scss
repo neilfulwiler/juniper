@@ -10,6 +10,8 @@ html, body, #root {
   font-family: 'Bebas Neue', cursive;
   font-size: 40px;
   box-sizing: border-box;
+
+  display: flex;
 }
 
 .todos {
@@ -67,11 +69,6 @@ input:after {
   margin-left: 48px;
 } 
 
-.sidebar {
-  background-color: white;
-  height: 100%;
-  width: 120px;
-}
 
 // HEADER 
 

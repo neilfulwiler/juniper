@@ -1,0 +1,29 @@
+.sidebar {
+  background-color: white;
+  height: 100%;
+  width: 120px;
+  overflow-y: scroll;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.timeSlots {
+  position: relative;
+}
+
+.timeSlot {
+  height: 48px;
+  border-bottom: 1px solid gray;
+  width: 100%;
+  font-size: 12px;
+}
+
+.event {
+  background-color: #FFA000;
+}
+
+.selection {
+  background-color: #FFCA28;
+}

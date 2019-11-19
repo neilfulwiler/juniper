@@ -10,14 +10,14 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TODOS, DELETE_TODO } from './redux/actions';
+import { useEventListener } from './utils';
+import { completeTodo, deleteTodo as deleteTodoAction, ADD_TODOS } from './redux/actions';
 import db from './firebase/firebase';
 
 function Todo({
-  name, id, editing, onDelete,
+  name, id, completed, editing, onDelete, onUpdateStatus,
 }) {
   const [value, setValue] = useState(name);
-  const [completed, setCompleted] = useState(false);
   const inputRef = useRef();
 
   useEffect(() => {
@@ -53,7 +53,7 @@ function Todo({
       <IconButton
         className="action"
         onClick={() => {
-          setCompleted(!completed);
+          onUpdateStatus(!completed);
         }}
       >
         {completed ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
@@ -86,6 +86,18 @@ function CreateTodo({ addTodo }) {
   );
 }
 
+
+function useKeyBindings(addTodo) {
+  const handlePlus = useCallback((e) => {
+    if (e.key === '+') {
+      addTodo();
+    }
+  }, [addTodo]);
+
+  useEventListener('keypress', handlePlus);
+}
+
+
 export default function Todos() {
   const todos = useSelector((state) => state.todos);
   const user = useSelector((state) => state.user);
@@ -98,33 +110,44 @@ export default function Todos() {
       return;
     }
 
+    // hard to put this into actions because I want to set editing equal to the
+    // new id. I could put editing state into redux
+    const sortOrder = Math.max(...todos.map((todo) => todo.sortOrder)) + 1;
+
     db.collection('todos').add({
       name: '',
       uid: user.uid,
+      sortOrder,
     }).then(({ id }) => {
-      dispatch({ type: ADD_TODOS, todos: [{ name: '', id }] });
+      dispatch({ type: ADD_TODOS, todos: [{ name: '', id, sortOrder }] });
       setEditing(id);
     });
-  }, [user, dispatch, setEditing]);
+  }, [todos, user, dispatch, setEditing]);
+
 
   const deleteTodo = useCallback((id) => {
-    db.collection('todos').doc(id).delete().then(() => {
-      dispatch({ type: DELETE_TODO, id });
-      if (id === editing) {
-        setEditing(undefined);
-      }
-    });
+    dispatch(deleteTodoAction(id));
+    if (id === editing) {
+      setEditing(undefined);
+    }
   }, [dispatch, editing]);
+
+
+  useKeyBindings(addTodo);
 
   return (
     <div className="todos">
-      {todos.map(({ name, id }) => (
+      {todos.map(({ name, id, completed }) => (
         <Todo
           key={id}
           id={id}
           name={name}
           editing={id === editing}
           onDelete={() => deleteTodo(id)}
+          onUpdateStatus={(update) => {
+            dispatch(completeTodo(id, update));
+          }}
+          completed={completed}
         />
       ))}
       <CreateTodo addTodo={addTodo} />
