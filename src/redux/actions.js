@@ -8,6 +8,8 @@ export const LOGGED_IN = 'LOGGED_IN';
 export const LOGGED_OUT = 'LOGGED_OUT';
 export const COMPLETE_TODO = 'COMPLETE_TODO';
 export const ADD_EVENTS = 'ADD_EVENTS';
+export const DELETE_EVENT = 'DELETE_EVENT';
+export const UPDATE_EVENT = 'UPDATE_EVENT';
 
 
 export function addEvent(user, { startTime, endTime }) {
@@ -16,8 +18,34 @@ export function addEvent(user, { startTime, endTime }) {
       startTime: startTime.unix(),
       endTime: endTime.unix(),
       uid: user.uid,
+    }).then((docRef) => {
+      dispatch({
+        type: ADD_EVENTS,
+        events: [{
+          // TOOD grab the actual fields from the docRef
+          startTime, endTime, uid: user.uid, id: docRef.id,
+        }],
+      });
+    });
+  };
+}
+
+
+// TODO expand to more than just title
+export function updateEvent(id, { title }) {
+  return (dispatch) => {
+    db.collection('events').doc(id).update({
+      title,
     }).then(() => {
-      dispatch({ type: ADD_EVENTS, events: [{ startTime, endTime }] });
+      dispatch({ type: UPDATE_EVENT, id, title });
+    });
+  };
+}
+
+export function deleteEvent(id) {
+  return (dispatch) => {
+    db.collection('events').doc(id).delete().then(() => {
+      dispatch({ type: DELETE_EVENT, id });
     });
   };
 }

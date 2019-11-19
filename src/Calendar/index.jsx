@@ -1,9 +1,14 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, {
+  Fragment, useCallback, useState, useRef,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import './styles.scss';
+import Popper from '@material-ui/core/Popper';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useEventListener } from '../utils';
-import { addEvent } from '../redux/actions';
+import { addEvent, deleteEvent, updateEvent } from '../redux/actions';
 
 
 // height from css = 48px
@@ -56,11 +61,76 @@ function useMouseSelection(onSelecting, onSelection) {
   return onMouseDown;
 }
 
+function Event({
+  timeSlots,
+  event,
+  editing,
+  onDelete,
+  onUpdateEvent,
+  ...rest
+}) {
+  const eventRef = useRef();
+  const eventStartTime = event.startTime;
+  const eventEndTime = event.endTime;
+  const eventTop = timeSlots.findIndex((timeSlot) => timeSlot.diff(eventStartTime) === 0) * TIME_SLOT_HEIGHT;
+  const eventHeight = Math.max(eventEndTime.diff(eventStartTime, 'hours'), 0.5) * TIME_SLOT_HEIGHT;
+  const [value, setValue] = useState(event.title || '');
+  return (
+    <>
+      <div
+        ref={eventRef}
+        key={event.id}
+        style={{
+          position: 'absolute',
+          marginLeft: '12px',
+          top: `${eventTop}px`,
+          height: `${eventHeight}px`,
+          width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+        }}
+        {...rest}
+      >
+        {event.title}
+      </div>
+      {eventRef.current !== null
+        && (
+        <Popper className="eventEditor-popper" open={editing} anchorEl={eventRef.current} placement="right">
+          <div className="arrow-left" />
+          <div
+            className="eventEditor-content"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <IconButton
+              onClick={onDelete}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+            <div className="inputHolder">
+              <input
+                placeholder="add event name"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onUpdateEvent({ title: value });
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </Popper>
+        )}
+    </>
+  );
+}
+
 
 export default function Calendar() {
   const dispatch = useDispatch();
   const events = useSelector((state) => state.events);
   const user = useSelector((state) => state.user);
+  const [editing, setEditing] = useState(undefined);
   const [selection, setSelection] = useState(undefined);
 
   const timeSlotsRef = useRef();
@@ -99,43 +169,32 @@ export default function Calendar() {
           {timeSlot.format('HH')}
         </div>
       ))}
-      {events.map((event) => {
-        const eventStartTime = event.startTime;
-        const eventEndTime = event.endTime;
-        const eventTop = timeSlots.findIndex((timeSlot) => timeSlot.diff(eventStartTime) === 0) * TIME_SLOT_HEIGHT;
-        const eventHeight = eventEndTime.diff(eventStartTime, 'hours') * TIME_SLOT_HEIGHT;
-        return (
-          <div
-            className="event"
-            key={event}
-            style={{
-              position: 'absolute',
-              marginLeft: '12px',
-              top: `${eventTop}px`,
-              height: `${eventHeight}px`,
-              width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
-            }}
-          />
-        );
-      })}
-      {selection !== undefined && ((s) => {
-        const eventStartTime = s.startTime;
-        const eventEndTime = s.endTime;
-        const eventTop = timeSlots.findIndex((timeSlot) => timeSlot.diff(eventStartTime) === 0) * TIME_SLOT_HEIGHT;
-        const eventHeight = eventEndTime.diff(eventStartTime, 'hours') * TIME_SLOT_HEIGHT;
-        return (
-          <div
-            className="selection"
-            style={{
-              position: 'absolute',
-              marginLeft: '12px',
-              top: `${eventTop}px`,
-              height: `${eventHeight}px`,
-              width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
-            }}
-          />
-        );
-      })(selection)}
+      {events.map((event) => (
+        <Event
+          timeSlots={timeSlots}
+          event={event}
+          onClick={() => setEditing(event.id)}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="event"
+          onDelete={() => {
+            setEditing(undefined);
+            dispatch(deleteEvent(event.id));
+          }}
+          onUpdateEvent={({ title }) => {
+            setEditing(undefined);
+            dispatch(updateEvent(event.id, { title }));
+          }}
+          editing={editing === event.id}
+        />
+      ))}
+      {selection !== undefined && ((s) => (
+        <Event
+          timeSlots={timeSlots}
+          event={s}
+          editing={false}
+          className="selection"
+        />
+      ))(selection)}
     </div>
   );
 }

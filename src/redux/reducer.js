@@ -1,6 +1,12 @@
 import {
-  LOGGED_IN, LOGGED_OUT, ADD_TODOS, DELETE_TODO, COMPLETE_TODO,
+  LOGGED_IN,
+  LOGGED_OUT,
+  ADD_TODOS,
+  DELETE_TODO,
+  COMPLETE_TODO,
   ADD_EVENTS,
+  DELETE_EVENT,
+  UPDATE_EVENT,
 } from './actions';
 
 const initialState = {
@@ -31,6 +37,16 @@ export default function todoApp(state = initialState, action) {
         ...state,
         events: state.events.concat(action.events
           .filter(({ id }) => state.events.findIndex((e) => e.id === id) === -1)),
+      };
+    case UPDATE_EVENT:
+      return {
+        ...state,
+        events: replace(state.events, (event) => event.id === action.id, { title: action.title }),
+      };
+    case DELETE_EVENT:
+      return {
+        ...state,
+        events: state.events.filter((event) => event.id !== action.id),
       };
     case ADD_TODOS:
       return {

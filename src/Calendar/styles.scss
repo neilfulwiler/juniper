@@ -27,3 +27,35 @@
 .selection {
   background-color: #FFCA28;
 }
+
+.eventEditor-popper {
+  display: flex;
+  align-items: center;
+}
+
+.eventEditor-content {
+  display: flex;
+  background-color: white;
+  padding: 12px;
+  box-shadow: border-box;
+  border-radius: 4px;
+
+  .inputHolder {
+    padding: 12px;
+    padding-left: 0px;
+
+    input {
+      padding: 6px;
+      outline: none;
+    }
+  }
+}
+
+.arrow-left {
+  width: 0; 
+  height: 0; 
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent; 
+  border-right:10px solid white;
+  background-color: transparent;
+}
