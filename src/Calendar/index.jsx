@@ -1,7 +1,9 @@
 import React, { useCallback, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import './styles.scss';
 import { useEventListener } from '../utils';
+import { addEvent } from '../redux/actions';
 
 
 // height from css = 48px
@@ -56,7 +58,9 @@ function useMouseSelection(onSelecting, onSelection) {
 
 
 export default function Calendar() {
-  const [events, setEvents] = useState([]);
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events);
+  const user = useSelector((state) => state.user);
   const [selection, setSelection] = useState(undefined);
 
   const timeSlotsRef = useRef();
@@ -81,10 +85,10 @@ export default function Calendar() {
   const onSelection = useCallback(({ start, end }) => {
     const startTimeEvent = yToTime(start);
     const endTimeEvent = yToTime(end);
-    setEvents(events.concat([{ startTime: startTimeEvent, endTime: endTimeEvent }]));
+    dispatch(addEvent(user, { startTime: startTimeEvent, endTime: endTimeEvent }));
     setSelection(undefined);
   },
-  [yToTime, setEvents, events]);
+  [yToTime, dispatch]);
 
   const onMouseDown = useMouseSelection(onSelecting, onSelection);
 

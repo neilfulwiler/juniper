@@ -1,11 +1,13 @@
 import {
   LOGGED_IN, LOGGED_OUT, ADD_TODOS, DELETE_TODO, COMPLETE_TODO,
+  ADD_EVENTS,
 } from './actions';
 
 const initialState = {
   todos: [
   ],
   user: undefined,
+  events: [],
 };
 
 
@@ -24,6 +26,12 @@ function replace(elements, predicate, overrides) {
 
 export default function todoApp(state = initialState, action) {
   switch (action.type) {
+    case ADD_EVENTS:
+      return {
+        ...state,
+        events: state.events.concat(action.events
+          .filter(({ id }) => state.events.findIndex((e) => e.id === id) === -1)),
+      };
     case ADD_TODOS:
       return {
         ...state,
