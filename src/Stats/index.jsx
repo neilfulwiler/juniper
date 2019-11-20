@@ -147,8 +147,9 @@ function MyResponsivePie() {
 
 export default function Stats() {
   const [showStats, setShowStats] = useState(false);
+  const style = showStats ? { width: '50%', height: '50%' } : {};
   return (
-    <div className="stats">
+    <div className="stats" style={style}>
       {!showStats
         && (
           <div className="showStatsButton-container">

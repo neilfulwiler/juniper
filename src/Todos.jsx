@@ -97,6 +97,9 @@ function useKeyBindings(addTodo) {
   useEventListener('keypress', handlePlus);
 }
 
+function Footer({ children }) {
+  return <div className="footer">{children}</div>;
+}
 
 export default function Todos() {
   const todos = useSelector((state) => state.todos);
@@ -150,7 +153,9 @@ export default function Todos() {
           completed={completed}
         />
       ))}
-      <CreateTodo addTodo={addTodo} />
+      <Footer>
+        <CreateTodo addTodo={addTodo} />
+      </Footer>
     </div>
   );
 }
