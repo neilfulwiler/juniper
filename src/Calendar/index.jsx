@@ -8,7 +8,7 @@ import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import {
-  timeRangesOverlap, useColors, getEventsByName, useEventListener,
+  roundTo, timeRangesOverlap, useColors, useEventListener,
 } from '../utils';
 import {
   addEvent, deleteEvent, updateTimeRange, updateTitle,
@@ -16,12 +16,12 @@ import {
 
 
 // height from css = 48px
-const TIME_SLOT_HEIGHT = 49;
+const TIME_SLOT_HEIGHT = 48;
 
 // time slot height is 1hr
 const timeSlotDuration = 1; // hours
 
-const SIDEBAR_WIDTH = 120;
+const SIDEBAR_WIDTH = 105;
 
 const FONT_SIZE = 12;
 
@@ -79,58 +79,93 @@ function Event({
   } = event;
   const [[stateStartTime, stateEndTime], setStateTimeRange] = useState([startTime, endTime]);
   const eventTop = stateStartTime.diff(timeSlots[0], 'hours', true) * TIME_SLOT_HEIGHT;
-  const eventHeight = Math.max(stateEndTime.diff(stateStartTime, 'hours'), 0.5) * TIME_SLOT_HEIGHT;
+  const eventHeight = Math.max(stateEndTime.diff(stateStartTime, 'hours', true), 0.5) * TIME_SLOT_HEIGHT;
   const [value, setValue] = useState(title || '');
 
-  const yToTime = useCallback(({ start, end }) => {
-    const gotShift = Math.min(
-      Math.max(-eventTop, end - start),
-      24 * TIME_SLOT_HEIGHT - (eventTop + eventHeight),
-    );
-    const newStartTime = moment(startTime).add(gotShift / TIME_SLOT_HEIGHT, 'hours');
-    const newEndTime = moment(endTime).add(gotShift / TIME_SLOT_HEIGHT, 'hours');
+  const yToTime = useCallback((y) => moment(startTime).add(
+    roundTo(y, TIME_SLOT_HEIGHT / 4)
+    / TIME_SLOT_HEIGHT, 'hours',
+  ),
+  [startTime]);
+
+  const getTimeRangeFromShift = useCallback(({ start, end }) => {
+    const startTimeY = yToTime(start);
+    const endTimeY = yToTime(end);
+    const timeShift = endTimeY.diff(startTimeY, 'hours', true);
+    const newStartTime = moment(startTime).add(timeShift, 'hours');
+    const newEndTime = moment(endTime).add(timeShift, 'hours');
     return [newStartTime, newEndTime];
-  }, [startTime, endTime]);
+  }, [yToTime, startTime, endTime]);
 
-  const onSelecting = useCallback(({ start, end }) => {
-    setStateTimeRange(yToTime({ start, end }));
-  }, [yToTime, setStateTimeRange]);
+  const onDragging = useCallback(({ start, end }) => {
+    setStateTimeRange(getTimeRangeFromShift({ start, end }));
+  }, [getTimeRangeFromShift, setStateTimeRange]);
 
-  const onSelection = useCallback(({ start, end }) => {
-    const [newStart, newEnd] = yToTime({ start, end });
+  const onDragComplete = useCallback(({ start, end }) => {
+    const [newStart, newEnd] = getTimeRangeFromShift({ start, end });
     onUpdateTimeRange({ startTime: newStart, endTime: newEnd });
+  }, [getTimeRangeFromShift]);
+
+  const onStartDrag = useMouseSelection(onDragging, onDragComplete);
+
+  const onAdjusting = useCallback(({ end }) => {
+    const newEndTime = yToTime(end);
+    if (newEndTime.diff(startTime) > 0) {
+      setStateTimeRange([startTime, newEndTime]);
+    } else {
+      setStateTimeRange([newEndTime, startTime]);
+    }
+  }, [startTime, yToTime, setStateTimeRange]);
+
+  const onAdjustComplete = useCallback(({ end }) => {
+    const newEndTime = yToTime(end);
+    if (newEndTime.diff(startTime)) {
+      onUpdateTimeRange({ startTime, endTime: newEndTime });
+    } else {
+      onUpdateTimeRange({ startTime: newEndTime, endTime: startTime });
+    }
   }, [yToTime]);
 
-  const onMouseDown = useMouseSelection(onSelecting, onSelection);
+  const onStartAdjust = useMouseSelection(onAdjusting, onAdjustComplete);
 
   return (
     <>
-      <div
-        ref={eventRef}
-        key={id}
-        style={{
-          ...{
-            position: 'absolute',
-            marginLeft: '12px',
-            top: `${eventTop}px`,
-            height: `${eventHeight}px`,
-            width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
-          },
-          ...style,
-        }}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          onMouseDown(e);
-        }}
-        {...rest}
-      >
-        {title}
-        <div className="event-hours">
-          {stateStartTime.format('LT')}
-          {' '}
--
-          {stateEndTime.format('LT')}
+      <div className="event-container">
+        <div
+          ref={eventRef}
+          key={id}
+          style={{
+            ...{
+              top: `${eventTop}px`,
+              height: `${eventHeight}px`,
+              width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+            },
+            ...style,
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            onStartDrag(e);
+          }}
+          {...rest}
+        >
+          {title}
+          <div className="event-hours">
+            {stateStartTime.format('LT')}
+            {' '}
+  -
+            {stateEndTime.format('LT')}
+          </div>
         </div>
+        <div
+          className="event-end-adjuster"
+          style={{
+            top: `${eventTop + eventHeight}px`,
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            onStartAdjust(e);
+          }}
+        />
       </div>
       {eventRef.current !== null
         && (

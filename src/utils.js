@@ -86,3 +86,7 @@ export function useEventListener(eventName, handler, element = window) {
     [eventName, element], // Re-run if eventName or element changes
   );
 }
+
+export function roundTo(x, mod) {
+  return x % mod < mod / 2 ? x - (x % mod) : x - (x % mod) + mod;
+}

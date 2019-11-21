@@ -20,12 +20,25 @@
   font-size: 12px;
 }
 
+.event-container {
+  padding-left: 12px;
+}
+
 .event {
-  background-color: #FFA000;
+  position: absolute;
+  word-wrap: break-word;
 }
 
 .selection {
   background-color: #FFCA28;
+}
+
+.event-end-adjuster {
+  position: absolute;
+  border: 6px solid transparent;
+  transform: translateY(-6px);
+  width: 100%;
+  cursor: row-resize;
 }
 
 .eventEditor-popper {
@@ -61,6 +74,6 @@
   height: 0; 
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent; 
-  border-right:10px solid white;
+  border-right: 10px solid white;
   background-color: transparent;
 }
