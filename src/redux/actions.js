@@ -30,15 +30,26 @@ export function addEvent(user, { startTime, endTime }) {
   };
 }
 
+// TODO consolidate these update functions
 
-// TODO expand to more than just title
-export function updateEvent(id, { title }) {
+export function updateTitle(event, { title }) {
+  const { id } = event;
   return (dispatch) => {
     db.collection('events').doc(id).update({
       title,
     }).then(() => {
-      dispatch({ type: UPDATE_EVENT, id, title });
+      dispatch({ type: UPDATE_EVENT, id, event: { ...event, title } });
     });
+  };
+}
+
+export function updateTimeRange(event, { startTime, endTime }) {
+  const { id } = event;
+  return (dispatch) => {
+    db.collection('events').doc(id).update({
+      startTime: startTime.unix(),
+      endTime: endTime.unix(),
+    }).then(() => dispatch({ type: UPDATE_EVENT, id, event: { ...event, startTime, endTime } }));
   };
 }
 

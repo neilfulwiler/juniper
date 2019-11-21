@@ -116,7 +116,7 @@ export default function Todos() {
     // hard to put this into actions because I want to set editing equal to the
     // new id. I could put editing state into redux
     const sortOrder = Math.max(...todos.map((todo) => todo.sortOrder)) + 1;
-
+    if (isNaN(sortOrder)) throw new Error('bad sort order');
     db.collection('todos').add({
       name: '',
       uid: user.uid,

@@ -41,7 +41,7 @@ export default function todoApp(state = initialState, action) {
     case UPDATE_EVENT:
       return {
         ...state,
-        events: replace(state.events, (event) => event.id === action.id, { title: action.title }),
+        events: replace(state.events, (event) => event.id === action.id, action.event),
       };
     case DELETE_EVENT:
       return {

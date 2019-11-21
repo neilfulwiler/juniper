@@ -21,7 +21,18 @@ html, body, #root {
   width: 100%;
   height: calc(100% - 60px);
   padding-top: 24px;
-  overflow: auto;
+  overflow: scroll;
+
+  // this allows us to scroll to all events.
+  // the footer is just overlaid on top of the
+  // list of todos, so if we didn't have extra space
+  // at the bottom, we wouldn't actually be able
+  // to keep scrolling 
+  padding-bottom: 124px;
+}
+
+.todos::-webkit-scrollbar {
+  display: none;
 }
 
 .todo {
@@ -79,8 +90,8 @@ input:after {
   background: linear-gradient(
     to top, 
     rgb(96,125,139), 
-    rgb(96,125,139), 75%,
-    rgba(96,125,139,0.5)
+    rgb(96,125,139), 85%,
+    rgba(96,125,139,0.0)
   );
 } 
 

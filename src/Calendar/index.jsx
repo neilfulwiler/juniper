@@ -7,8 +7,12 @@ import './styles.scss';
 import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { useColors, getEventsByName, useEventListener } from '../utils';
-import { addEvent, deleteEvent, updateEvent } from '../redux/actions';
+import {
+  timeRangesOverlap, useColors, getEventsByName, useEventListener,
+} from '../utils';
+import {
+  addEvent, deleteEvent, updateTimeRange, updateTitle,
+} from '../redux/actions';
 
 
 // height from css = 48px
@@ -37,9 +41,7 @@ function useMouseSelection(onSelecting, onSelection) {
     }
 
     const { clientY } = e;
-    onSelecting(clientY > selectionStart
-      ? { start: selectionStart, end: clientY }
-      : { start: clientY, end: selectionStart });
+    onSelecting({ start: selectionStart, end: clientY });
   }, [selectionStart, onSelecting]);
 
   const onMouseUp = useCallback((e) => {
@@ -48,9 +50,7 @@ function useMouseSelection(onSelecting, onSelection) {
     }
 
     const { clientY } = e;
-    onSelection(clientY > selectionStart
-      ? { start: selectionStart, end: clientY }
-      : { start: clientY, end: selectionStart });
+    onSelection({ start: selectionStart, end: clientY });
 
     setSelectionStart(undefined);
   }, [selectionStart, onSelection]);
@@ -67,21 +67,47 @@ function Event({
   event,
   editing,
   onDelete,
-  onUpdateEvent,
+  onUpdateTitle,
+  onUpdateTimeRange,
   style,
   ...rest
 }) {
+  const dispatch = useDispatch();
   const eventRef = useRef();
-  const eventStartTime = event.startTime;
-  const eventEndTime = event.endTime;
-  const eventTop = timeSlots.findIndex((timeSlot) => timeSlot.diff(eventStartTime) === 0) * TIME_SLOT_HEIGHT;
-  const eventHeight = Math.max(eventEndTime.diff(eventStartTime, 'hours'), 0.5) * TIME_SLOT_HEIGHT;
-  const [value, setValue] = useState(event.title || '');
+  const {
+    id, title, startTime, endTime,
+  } = event;
+  const [[stateStartTime, stateEndTime], setStateTimeRange] = useState([startTime, endTime]);
+  const eventTop = stateStartTime.diff(timeSlots[0], 'hours', true) * TIME_SLOT_HEIGHT;
+  const eventHeight = Math.max(stateEndTime.diff(stateStartTime, 'hours'), 0.5) * TIME_SLOT_HEIGHT;
+  const [value, setValue] = useState(title || '');
+
+  const yToTime = useCallback(({ start, end }) => {
+    const gotShift = Math.min(
+      Math.max(-eventTop, end - start),
+      24 * TIME_SLOT_HEIGHT - (eventTop + eventHeight),
+    );
+    const newStartTime = moment(startTime).add(gotShift / TIME_SLOT_HEIGHT, 'hours');
+    const newEndTime = moment(endTime).add(gotShift / TIME_SLOT_HEIGHT, 'hours');
+    return [newStartTime, newEndTime];
+  }, [startTime, endTime]);
+
+  const onSelecting = useCallback(({ start, end }) => {
+    setStateTimeRange(yToTime({ start, end }));
+  }, [yToTime, setStateTimeRange]);
+
+  const onSelection = useCallback(({ start, end }) => {
+    const [newStart, newEnd] = yToTime({ start, end });
+    onUpdateTimeRange({ startTime: newStart, endTime: newEnd });
+  }, [yToTime]);
+
+  const onMouseDown = useMouseSelection(onSelecting, onSelection);
+
   return (
     <>
       <div
         ref={eventRef}
-        key={event.id}
+        key={id}
         style={{
           ...{
             position: 'absolute',
@@ -92,9 +118,19 @@ function Event({
           },
           ...style,
         }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          onMouseDown(e);
+        }}
         {...rest}
       >
-        {event.title}
+        {title}
+        <div className="event-hours">
+          {stateStartTime.format('LT')}
+          {' '}
+-
+          {stateEndTime.format('LT')}
+        </div>
       </div>
       {eventRef.current !== null
         && (
@@ -118,7 +154,7 @@ function Event({
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    onUpdateEvent({ title: value });
+                    onUpdateTitle({ title: value });
                   }
                 }}
               />
@@ -140,6 +176,7 @@ export default function Calendar() {
 
   const timeSlotsRef = useRef();
   const startTime = moment().startOf('day');
+  const endTime = moment(startTime).add(1, 'day');
   const timeSlots = Array.from({ length: 24 }).map((_, idx) => moment(startTime).add(idx, 'hours'));
 
   const yToTime = useCallback((y) => {
@@ -152,18 +189,20 @@ export default function Calendar() {
   }, [timeSlotsRef, startTime]);
 
   const onSelecting = useCallback(({ start, end }) => {
-    const startTimeSelection = yToTime(start);
-    const endTimeSelection = yToTime(end);
+    const [realStart, realEnd] = end > start ? [start, end] : [end, start];
+    const startTimeSelection = yToTime(realStart);
+    const endTimeSelection = yToTime(realEnd);
     setSelection({ startTime: startTimeSelection, endTime: endTimeSelection });
   }, [yToTime, setSelection]);
 
   const onSelection = useCallback(({ start, end }) => {
-    const startTimeEvent = yToTime(start);
-    const endTimeEvent = yToTime(end);
+    const [realStart, realEnd] = end > start ? [start, end] : [end, start];
+    const startTimeEvent = yToTime(realStart);
+    const endTimeEvent = yToTime(realEnd);
     dispatch(addEvent(user, { startTime: startTimeEvent, endTime: endTimeEvent }));
     setSelection(undefined);
   },
-  [yToTime, dispatch]);
+  [user, yToTime, dispatch]);
 
   const onMouseDown = useMouseSelection(onSelecting, onSelection);
 
@@ -176,21 +215,24 @@ export default function Calendar() {
           {timeSlot.format('HH')}
         </div>
       ))}
-      {events.map((event) => (
+      {events.filter((e) => timeRangesOverlap([e.startTime, e.endTime], [startTime, endTime])).map((event) => (
         <Event
           key={event.id}
           timeSlots={timeSlots}
           event={event}
           onClick={() => setEditing(event.id)}
-          onMouseDown={(e) => e.stopPropagation()}
           className="event"
           onDelete={() => {
             setEditing(undefined);
             dispatch(deleteEvent(event.id));
           }}
-          onUpdateEvent={({ title }) => {
+          onUpdateTitle={({ title }) => {
             setEditing(undefined);
-            dispatch(updateEvent(event.id, { title }));
+            dispatch(updateTitle(event, { title }));
+          }}
+          onUpdateTimeRange={(timeRange) => {
+            setEditing(undefined);
+            dispatch(updateTimeRange(event, timeRange));
           }}
           editing={editing === event.id}
           style={{ backgroundColor: getColor(event.title) }}
