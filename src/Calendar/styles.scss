@@ -21,16 +21,18 @@
 }
 
 .event-container {
-  padding-left: 12px;
+  padding-left: 16px;
 }
 
 .event {
   position: absolute;
   word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .selection {
-  background-color: #FFCA28;
+  background-color: rgba(0, 0, 0, .2);
+  position: absolute;
 }
 
 .event-end-adjuster {

@@ -61,8 +61,36 @@ function useMouseSelection(onSelecting, onSelection) {
   return onMouseDown;
 }
 
+function SelectingEvent({
+  timeSlots,
+  timeRange,
+}) {
+  const { startTime, endTime } = timeRange;
+  const eventTop = startTime.diff(timeSlots[0], 'hours', true) * TIME_SLOT_HEIGHT;
+  const eventHeight = Math.max(endTime.diff(startTime, 'hours', true), 0.5) * TIME_SLOT_HEIGHT;
+  return (
+    <div className="event-container">
+      <div
+        className="selection"
+        style={{
+          top: `${eventTop}px`,
+          height: `${eventHeight}px`,
+          width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+        }}
+      >
+        <div className="event-hours">
+          {startTime.format('LT')}
+          {' '}
+  -
+          {endTime.format('LT')}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Event({
+  timeSlotsRef,
   timeSlots,
   event,
   editing,
@@ -82,11 +110,14 @@ function Event({
   const eventHeight = Math.max(stateEndTime.diff(stateStartTime, 'hours', true), 0.5) * TIME_SLOT_HEIGHT;
   const [value, setValue] = useState(title || '');
 
-  const yToTime = useCallback((y) => moment(startTime).add(
-    roundTo(y, TIME_SLOT_HEIGHT / 4)
-    / TIME_SLOT_HEIGHT, 'hours',
-  ),
-  [startTime]);
+  const yToTime = useCallback((y) => {
+    const actualY = y + timeSlotsRef.parentElement.scrollTop;
+    return moment(startTime).add(
+      roundTo(actualY, TIME_SLOT_HEIGHT / 4) / TIME_SLOT_HEIGHT,
+      'hours',
+    );
+  },
+  [startTime, timeSlotsRef]);
 
   const getTimeRangeFromShift = useCallback(({ start, end }) => {
     const startTimeY = yToTime(start);
@@ -137,8 +168,9 @@ function Event({
           style={{
             ...{
               top: `${eventTop}px`,
-              height: `${eventHeight}px`,
-              width: `${SIDEBAR_WIDTH - FONT_SIZE}px`,
+              height: `${eventHeight - 7}px`,
+              width: '89px',
+              marginTop: '3px',
             },
             ...style,
           }}
@@ -243,6 +275,7 @@ export default function Calendar() {
 
   const getColor = useColors();
 
+  console.log(selection);
   return (
     <div className="timeSlots" ref={timeSlotsRef} onMouseDown={onMouseDown}>
       {timeSlots.map((timeSlot) => (
@@ -250,8 +283,9 @@ export default function Calendar() {
           {timeSlot.format('HH')}
         </div>
       ))}
-      {events.filter((e) => timeRangesOverlap([e.startTime, e.endTime], [startTime, endTime])).map((event) => (
+      {timeSlotsRef.current && events.filter((e) => timeRangesOverlap([e.startTime, e.endTime], [startTime, endTime])).map((event) => (
         <Event
+          timeSlotsRef={timeSlotsRef.current}
           key={event.id}
           timeSlots={timeSlots}
           event={event}
@@ -274,12 +308,9 @@ export default function Calendar() {
         />
       ))}
       {selection !== undefined && ((s) => (
-        <Event
+        <SelectingEvent
           timeSlots={timeSlots}
-          event={s}
-          editing={false}
-          className="selection"
-          style={{ backgroundColor: getColor(s.title) }}
+          timeRange={s}
         />
       ))(selection)}
     </div>
