@@ -56,18 +56,24 @@ const Calendar: React.FC<{}> = () => {
   const user = useSelector<State, User | undefined>((state) => state.user);
   const [selection, setSelection] = useState<TimeRange | undefined>(undefined);
 
-  const timeSlotsRef = useRef<HTMLDivElement>(null);
   const startTime = moment().startOf('day');
   const endTime = moment(startTime).add(1, 'day');
   const timeSlots = Array.from({ length: 24 }).map((_, idx) => moment(startTime).add(idx, 'hours'));
 
+  const [timeSlotsRef, setTimeSlotsRef] = useState<HTMLDivElement | undefined>();
+  const timeSlotsRefCallback = useCallback((node) => {
+    if (node) {
+      setTimeSlotsRef(node);
+    }
+  }, []);
+
   const yToTime = useCallback((y) => {
-    if (!timeSlotsRef.current) {
+    if (!timeSlotsRef) {
       return moment();
     }
 
-    const actualY = y + (timeSlotsRef.current.parentElement as HTMLElement).scrollTop;
-    const numSlots = roundTo((actualY - timeSlotsRef.current.offsetTop), TIME_SLOT_HEIGHT / 4) / TIME_SLOT_HEIGHT;
+    const actualY = y + (timeSlotsRef.parentElement as HTMLElement).scrollTop;
+    const numSlots = roundTo((actualY - timeSlotsRef.offsetTop), TIME_SLOT_HEIGHT / 4) / TIME_SLOT_HEIGHT;
     return moment(startTime).add(
       numSlots * timeSlotDuration,
       'hours',
@@ -92,24 +98,29 @@ const Calendar: React.FC<{}> = () => {
 
   const onMouseDown = useMouseSelection(onSelecting, onSelection);
 
+
   const getColor = useColors();
   return (
-    <div className="timeSlots" ref={timeSlotsRef} onMouseDown={onMouseDown}>
+    <div className="timeSlots" ref={timeSlotsRefCallback} onMouseDown={onMouseDown}>
       {timeSlots.map((timeSlot) => (
         <div className="timeSlot" key={timeSlot.format()}>
           {timeSlot.format('HH')}
         </div>
       ))}
-      {events.filter((e) => timeRangesOverlap([e.startTime, e.endTime], [startTime, endTime])).map((event, idx) => (timeSlotsRef.current
+      {events.filter((e) => timeRangesOverlap([e.startTime, e.endTime], [startTime, endTime])).map((event, idx) => (timeSlotsRef
         && (
         <Event
-          timeSlotsRef={timeSlotsRef.current}
+          timeSlotsRef={timeSlotsRef}
           key={event.id}
           timeSlots={timeSlots}
           event={event}
           onClick={() => dispatch({
             type: SET_EDITING_EVENT,
             id: event.id,
+          })}
+          onBlur={() => dispatch({
+            type: SET_EDITING_EVENT,
+            id: undefined,
           })}
           onDelete={() => {
             dispatch(deleteEvent(event.id));

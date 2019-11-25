@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import firebase from '@firebase/app';
 import '@firebase/auth';
+import IconButton from '@material-ui/core/IconButton';
+import AppsIcon from '@material-ui/icons/Apps';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { logIn, logOut } from './redux/actions';
 import { State, User } from './types';
 
@@ -24,23 +27,30 @@ export default function Header() {
 
   const content = user !== undefined
     ? (
-      <div
-        className="header-button"
-        onClick={() => {
-          firebase.auth && firebase.auth().signOut().then(() => {
-            dispatch(logOut());
-          });
-        }}
-      >
-      Sign Out
-      </div>
+      <>
+        <div
+          className="header-button"
+          onClick={() => {
+            firebase.auth && firebase.auth().signOut().then(() => {
+              dispatch(logOut());
+            });
+          }}
+        >
+        Sign Out
+        </div>
+        <div className="header-button">
+          <IconButton>
+            <AppsIcon />
+          </IconButton>
+        </div>
+      </>
     )
     : (
       <>
         <div
           className="header-button"
           onClick={() => firebase.auth && firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((result) => {
-            dispatch(logIn(result.user));
+            dispatch(logIn(result.user as User));
           })}
         >
           Log In

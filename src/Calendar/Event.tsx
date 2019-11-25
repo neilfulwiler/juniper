@@ -20,12 +20,13 @@ interface Props {
   timeSlotsRef: HTMLDivElement,
   timeSlots: Moment[],
   event: EventType,
-  onClick: () => void,
   onDelete: () => void,
   onUpdateTitle: (args: {title: string}) => void,
   onUpdateTimeRange: (args: TimeRange) => void,
   editing: boolean,
   style: CSSProperties,
+  onBlur: () => void,
+  onClick: () => void,
 }
 
 const Event: React.FC<Props> = ({
@@ -37,7 +38,8 @@ const Event: React.FC<Props> = ({
   onUpdateTitle,
   onUpdateTimeRange,
   style,
-  ...rest
+  onBlur,
+  onClick,
 }: Props) => {
   const [eventRef, setEventRef] = useState<HTMLDivElement | undefined>();
   const {
@@ -168,7 +170,7 @@ const Event: React.FC<Props> = ({
             e.stopPropagation();
             onStartDrag(e);
           }}
-          {...rest}
+          onClick={() => onClick()}
         >
           {title}
           <div className="event-hours">
@@ -211,8 +213,11 @@ const Event: React.FC<Props> = ({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     onUpdateTitle({ title: value });
+                  } else if (e.key === 'Escape') {
+                    onBlur();
                   }
                 }}
+                onBlur={() => onBlur()}
               />
               <div className="eventEditor-timerange">
                 {stateStartTime.format('LT')}
@@ -223,7 +228,9 @@ const Event: React.FC<Props> = ({
             </div>
             <div className="toolbar">
               <IconButton
-                onClick={onDelete}
+                onClick={() => {
+                  console.log('called delete'); onDelete();
+                }}
               >
                 <DeleteOutlineIcon />
               </IconButton>

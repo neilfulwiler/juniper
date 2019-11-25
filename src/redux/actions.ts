@@ -74,7 +74,7 @@ type LoggedOut = {
 
 type SetEditingEvent = {
   type: typeof SET_EDITING_EVENT,
-  id: string,
+  id: string | undefined,
 }
 
 export type Action = EventCreated | AddEvents | UpdateEvent | DeleteEvent | SetEditingEvent |
