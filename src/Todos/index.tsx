@@ -1,7 +1,7 @@
 import React, {
   useCallback, useState, useEffect, useRef,
 } from 'react';
-import './App.scss';
+import '../App.scss';
 import 'typeface-roboto';
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -10,18 +10,28 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEventListener } from './utils';
-import { completeTodo, deleteTodo as deleteTodoAction, ADD_TODOS } from './redux/actions';
-import db from './firebase/firebase';
+import { useEventListener } from '../utils';
+import { completeTodo, deleteTodo as deleteTodoAction, ADD_TODOS } from '../redux/actions';
+import { State, Todo as TodoType, User } from '../types';
+import db from '../firebase/firebase';
 
-function Todo({
+interface TodoProps {
+  name: string,
+  id: string,
+  completed: boolean,
+  editing: boolean,
+  onDelete: () => void,
+  onUpdateStatus: (completed: boolean) => void,
+}
+
+const Todo: React.FC<TodoProps> = ({
   name, id, completed, editing, onDelete, onUpdateStatus,
-}) {
+}: TodoProps) => {
   const [value, setValue] = useState(name);
-  const inputRef = useRef();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editing) {
+    if (editing && inputRef.current) {
       inputRef.current.focus();
     }
   }, [editing]);
@@ -31,7 +41,7 @@ function Todo({
       ref={inputRef}
       value={value}
       onKeyPress={(e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && inputRef.current) {
           inputRef.current.blur();
         }
       }}
@@ -69,25 +79,23 @@ function Todo({
       </IconButton>
     </div>
   );
-}
+};
 
-function CreateTodo({ addTodo }) {
-  return (
-    <div className="createButton">
-      <IconButton
-        size="medium"
-        onClick={() => {
-          addTodo();
-        }}
-      >
-        <AddCircleIcon />
-      </IconButton>
-    </div>
-  );
-}
+const CreateTodo: React.FC<{addTodo: () => void}> = ({ addTodo }: {addTodo: () => void}) => (
+  <div className="createButton">
+    <IconButton
+      size="medium"
+      onClick={() => {
+        addTodo();
+      }}
+    >
+      <AddCircleIcon />
+    </IconButton>
+  </div>
+);
 
 
-function useKeyBindings(addTodo) {
+function useKeyBindings(addTodo: () => void): void {
   const handlePlus = useCallback((e) => {
     if (e.key === '+') {
       addTodo();
@@ -97,15 +105,13 @@ function useKeyBindings(addTodo) {
   useEventListener('keypress', handlePlus);
 }
 
-function Footer({ children }) {
-  return <div className="footer">{children}</div>;
-}
+const Footer: React.FC<{}> = ({ children }) => <div className="footer">{children}</div>;
 
 export default function Todos() {
-  const todos = useSelector((state) => state.todos);
-  const user = useSelector((state) => state.user);
+  const todos = useSelector<State, TodoType[]>((state) => state.todos);
+  const user = useSelector<State, User | undefined>((state) => state.user);
   const dispatch = useDispatch();
-  const [editing, setEditing] = useState(undefined);
+  const [editing, setEditing] = useState<string | undefined>(undefined);
 
   const addTodo = useCallback(() => {
     if (!user) {
@@ -115,13 +121,13 @@ export default function Todos() {
 
     // hard to put this into actions because I want to set editing equal to the
     // new id. I could put editing state into redux
-    const sortOrder = Math.max(...todos.map((todo) => todo.sortOrder)) + 1;
+    const sortOrder = Math.max(...todos.map((todo: TodoType) => todo.sortOrder)) + 1;
     if (isNaN(sortOrder)) throw new Error('bad sort order');
     db.collection('todos').add({
       name: '',
       uid: user.uid,
       sortOrder,
-    }).then(({ id }) => {
+    }).then(({ id }: {id: string}) => {
       dispatch({ type: ADD_TODOS, todos: [{ name: '', id, sortOrder }] });
       setEditing(id);
     });

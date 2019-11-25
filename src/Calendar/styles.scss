@@ -3,6 +3,8 @@
   height: 100%;
   width: 120px;
   overflow-y: scroll;
+  box-shadow: 5px 0px 5px rgba(0, 0, 0, .2);
+  z-index: 100;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -24,10 +26,16 @@
   padding-left: 16px;
 }
 
+.event-container:hover > .event {
+  text-decoration: underline;
+}
+
 .event {
   position: absolute;
   word-wrap: break-word;
   box-sizing: border-box;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .selection {
@@ -38,7 +46,15 @@
 .event-end-adjuster {
   position: absolute;
   border: 6px solid transparent;
-  transform: translateY(-6px);
+  transform: translateY(-12px);
+  width: 100%;
+  cursor: row-resize;
+}
+
+.event-start-adjuster {
+  position: absolute;
+  border: 6px solid transparent;
+  z-index: 100;
   width: 100%;
   cursor: row-resize;
 }
@@ -46,22 +62,33 @@
 .eventEditor-popper {
   display: flex;
   align-items: center;
+  z-index: 100;
 }
 
-.eventEditor-content {
-  display: flex;
+.eventEditor-container {
   background-color: white;
-  padding: 12px;
-  box-shadow: border-box;
   border-radius: 4px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, .2);
+  display: flex;
+  align-items: center;
 
-  .inputHolder {
-    padding: 12px;
-    padding-left: 0px;
+  .toolbar {
+    padding-right: 12px;
+  }
+
+  .eventEditor-content {
+    padding: 30px;
 
     input {
-      padding: 6px;
+      padding: 0px;
       outline: none;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 20px;
+      border: none;
+    }
+
+    .eventEditor-timerange {
+      color: grey;
     }
   }
 }
@@ -72,6 +99,7 @@
 }
 
 .arrow-left {
+  visibility: hidden;
   width: 0; 
   height: 0; 
   border-top: 10px solid transparent;

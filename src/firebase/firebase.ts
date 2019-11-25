@@ -1,4 +1,5 @@
 import firebase from '@firebase/app';
+import { FirebaseFirestore } from '@firebase/firestore-types';
 import '@firebase/firestore';
 import '@firebase/auth';
 
@@ -15,6 +16,6 @@ const firebaseConfig = {
 // Initialize Cloud Firestore through Firebase
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.firestore();
+const db = (firebase.firestore && firebase.firestore()) as FirebaseFirestore;
 
 export default db;

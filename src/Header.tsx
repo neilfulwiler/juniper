@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import firebase from '@firebase/app';
+import '@firebase/auth';
 import { logIn, logOut } from './redux/actions';
+import { State, User } from './types';
 
 
 function signUp() {
@@ -10,12 +12,12 @@ function signUp() {
 
 export default function Header() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
+  const user = useSelector<State, User | undefined>((state) => state.user);
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((currentUser) => {
+    firebase.auth && firebase.auth().onAuthStateChanged((currentUser: any) => {
       if (currentUser) {
-        dispatch(logIn(currentUser));
+        dispatch(logIn(currentUser as User));
       }
     });
   });
@@ -25,7 +27,7 @@ export default function Header() {
       <div
         className="header-button"
         onClick={() => {
-          firebase.auth().signOut().then(() => {
+          firebase.auth && firebase.auth().signOut().then(() => {
             dispatch(logOut());
           });
         }}
@@ -37,7 +39,7 @@ export default function Header() {
       <>
         <div
           className="header-button"
-          onClick={() => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((result) => {
+          onClick={() => firebase.auth && firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((result) => {
             dispatch(logIn(result.user));
           })}
         >

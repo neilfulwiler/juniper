@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { Moment } from 'moment';
+import { Event, State } from './types';
 
 export const colors = [
   {
@@ -19,15 +21,15 @@ export const colors = [
   },
 ];
 
-export function getEventsByName(events) {
-  const byName = events.reduce((acc, event) => {
+export function getEventsByName(events: Event[]): [string, Event[]][] {
+  const byName: {[key: string]: Event[]} = events.reduce((acc, event) => {
     const { title } = event;
     if (!acc.hasOwnProperty(title)) {
       acc[title] = [];
     }
     acc[title].push(event);
     return acc;
-  }, {});
+  }, {} as {[key: string]: Event[]});
 
   Object.values(byName).forEach((list) => list.sort((a, b) => a.startTime.diff(b.startTime)));
 
@@ -37,25 +39,29 @@ export function getEventsByName(events) {
 }
 
 export function useColors() {
-  const events = useSelector((state) => state.events);
+  const events = useSelector<State, Event[]>((state) => state.events);
   const eventsByName = getEventsByName(events).map(([title]) => title);
   return useCallback((title) => {
     if (title === undefined) {
       return '#BDBDBD';
     }
-    const { color } = colors[eventsByName.indexOf(title)];
+    const style = colors[eventsByName.indexOf(title)];
+    if (!style) {
+      return 'grey';
+    }
+    const { color } = style;
     return color;
-  }, [events]);
+  }, [eventsByName]);
 }
 
-export function timeRangesOverlap([a1, a2], [b1, b2]) {
+export function timeRangesOverlap([a1, a2]: [Moment, Moment], [b1, b2]: [Moment, Moment]): boolean {
   return (a1 >= b1 && a1 <= b2) || (a2 >= b1 && a2 <= b2);
 }
 
 
-export function useEventListener(eventName, handler, element = window) {
+export function useEventListener(eventName: string, handler: (event: any) => void, element = window) {
   // Create a ref that stores handler
-  const savedHandler = useRef();
+  const savedHandler = useRef<(event: any) => void>();
 
   // Update ref.current value if handler changes.
   // This allows our effect below to always get latest handler ...
@@ -73,7 +79,7 @@ export function useEventListener(eventName, handler, element = window) {
       if (!isSupported) return () => {};
 
       // Create event listener that calls handler function stored in ref
-      const eventListener = (event) => savedHandler.current(event);
+      const eventListener = (event: any) => savedHandler.current && savedHandler.current(event);
 
       // Add event listener
       element.addEventListener(eventName, eventListener);
@@ -87,6 +93,6 @@ export function useEventListener(eventName, handler, element = window) {
   );
 }
 
-export function roundTo(x, mod) {
+export function roundTo(x: number, mod: number): number {
   return x % mod < mod / 2 ? x - (x % mod) : x - (x % mod) + mod;
 }

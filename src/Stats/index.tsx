@@ -6,6 +6,7 @@ import { ResponsivePie } from '@nivo/pie';
 import { useSelector } from 'react-redux';
 import { getEventsByName, useColors } from '../utils';
 import './styles.scss';
+import { Event, State } from '../types';
 
 // make sure parent container have a defined height when using
 // responsive component, otherwise height will be 0 and
@@ -13,7 +14,7 @@ import './styles.scss';
 // website examples showcase many properties,
 // you'll often use just a few of them.
 function MyResponsivePie() {
-  const events = useSelector((state) => state.events);
+  const events = useSelector<State, Event[]>((state) => state.events);
   const getColor = useColors();
 
   if (events.length === 0) {
