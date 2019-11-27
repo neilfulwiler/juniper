@@ -1,20 +1,141 @@
 import React, {
-  useCallback, useState, useRef,
+  useCallback, useState,
   useEffect,
   CSSProperties,
 } from 'react';
+import throttle from 'lodash.throttle';
+import {
+  convertFromRaw, convertToRaw, Editor, EditorState,
+} from 'draft-js';
+import { useSelector } from 'react-redux';
 import Popper from '@material-ui/core/Popper';
 import moment, { Moment } from 'moment';
 import './styles.scss';
 import IconButton from '@material-ui/core/IconButton';
+import CreateIcon from '@material-ui/icons/Create';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import {
   roundTo,
+  useEventListener,
 } from '../utils';
-import { Event as EventType, TimeRange } from '../types';
+import { State, Event as EventType, TimeRange } from '../types';
 import { TIME_SLOT_HEIGHT } from './constants';
 import { useMouseSelection } from './utils';
 
+
+interface EventEditorProps {
+  title: string,
+  startTime: Moment,
+  endTime: Moment,
+  onUpdateTitle: (args: {title: string}) => void,
+  onUpdateNotes: (args: {notes: string}) => void,
+  onBlur: () => void,
+  onDelete: () => void,
+  eventRef: HTMLDivElement,
+  notes?: string,
+}
+
+const EventEditor: React.FC<EventEditorProps> = ({
+  title, startTime, endTime, onUpdateTitle, onBlur, onUpdateNotes, onDelete, eventRef, notes,
+}) => {
+  const [value, setValue] = useState(title);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [inputRef, setInputRef] = useState<HTMLInputElement | undefined>();
+  const inputRefCallback = useCallback((node) => {
+    if (node) {
+      setInputRef(node);
+    }
+  }, []);
+
+  useEffect(() => {
+    inputRef && inputRef.focus();
+  }, [inputRef]);
+
+  const [notesEditorState, setNotesEditorState] = useState(
+    notes === undefined
+      ? EditorState.createEmpty()
+      : EditorState.createWithContent(convertFromRaw(JSON.parse(notes))),
+  );
+
+  const [editorRef, setEditorRef] = useState<HTMLInputElement | null>(null);
+
+  const editorRefCallback = useCallback((node) => {
+    node && setEditorRef(node);
+  }, [setEditorRef]);
+
+  useEffect(() => {
+    editingNotes && editorRef && editorRef.focus();
+  }, [editingNotes, editorRef]);
+
+  const updateNotes = throttle((state) => onUpdateNotes({ notes: JSON.stringify(convertToRaw(state.getCurrentContent())) }));
+
+  return (
+    <Popper
+      open
+      className="eventEditor-popper"
+      anchorEl={eventRef}
+      placement="right"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="arrow-left" />
+      <div
+        className="eventEditor-container"
+      >
+        <div className="eventEditor-header">
+          <div className="eventEditor-title">
+            <input
+              ref={inputRefCallback}
+              placeholder="add event name"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onUpdateTitle({ title: value });
+                } else if (e.key === 'Escape') {
+                  onBlur();
+                }
+              }}
+            />
+            <div className="eventEditor-timerange">
+              {startTime.format('LT')}
+              {' '}
+    -
+              {endTime.format('LT')}
+            </div>
+
+          </div>
+          <div className="eventEditor-toolbar">
+            <IconButton
+              onClick={() => {
+                setEditingNotes(!editingNotes);
+              }}
+            >
+              <CreateIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => onDelete()}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </div>
+        </div>
+        {editingNotes && (
+          <div className="eventEditor-notes">
+            <Editor
+              ref={editorRefCallback}
+              editorState={notesEditorState}
+              onChange={(state: EditorState) => {
+                setNotesEditorState(state);
+                updateNotes(state);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </Popper>
+  );
+};
 
 interface Props {
   timeSlotsRef: HTMLDivElement,
@@ -22,8 +143,8 @@ interface Props {
   event: EventType,
   onDelete: () => void,
   onUpdateTitle: (args: {title: string}) => void,
+  onUpdateNotes: (args: {notes: string}) => void,
   onUpdateTimeRange: (args: TimeRange) => void,
-  editing: boolean,
   style: CSSProperties,
   onBlur: () => void,
   onClick: () => void,
@@ -33,17 +154,18 @@ const Event: React.FC<Props> = ({
   timeSlotsRef,
   timeSlots,
   event,
-  editing,
   onDelete,
   onUpdateTitle,
+  onUpdateNotes,
   onUpdateTimeRange,
   style,
   onBlur,
   onClick,
 }: Props) => {
+  const editingEvent = useSelector<State, string | undefined>((state) => state.editingEvent);
   const [eventRef, setEventRef] = useState<HTMLDivElement | undefined>();
   const {
-    id, title, startTime, endTime,
+    id, title, startTime, endTime, notes,
   } = event;
   const [[stateStartTime, stateEndTime], setStateTimeRange] = useState([startTime, endTime]);
   const eventTop = stateStartTime.diff(timeSlots[0], 'hours', true) * TIME_SLOT_HEIGHT;
@@ -121,22 +243,10 @@ const Event: React.FC<Props> = ({
   const onStartAdjustStartTime = useMouseSelection(onAdjustingStartTime, onAdjustStartTimeComplete);
 
   const eventRefCallback = useCallback((node) => {
-    if (node) {
+    if (node && node !== eventRef) {
       setEventRef(node);
     }
   }, []);
-
-
-  const [inputRef, setInputRef] = useState<HTMLInputElement | undefined>();
-  const inputRefCallback = useCallback((node) => {
-    if (node) {
-      setInputRef(node);
-    }
-  }, []);
-
-  useEffect(() => {
-    editing && inputRef && inputRef.focus();
-  }, [editing, inputRef]);
 
   return (
     <>
@@ -191,53 +301,19 @@ const Event: React.FC<Props> = ({
           }}
         />
       </div>
-      {eventRef
-        && (
-        <Popper
-          className="eventEditor-popper"
-          open={editing}
-          anchorEl={eventRef}
-          placement="right"
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <div className="arrow-left" />
-          <div
-            className="eventEditor-container"
-          >
-            <div className="eventEditor-content">
-              <input
-                ref={inputRefCallback}
-                placeholder="add event name"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    onUpdateTitle({ title: value });
-                  } else if (e.key === 'Escape') {
-                    onBlur();
-                  }
-                }}
-                onBlur={() => onBlur()}
-              />
-              <div className="eventEditor-timerange">
-                {stateStartTime.format('LT')}
-                {' '}
-  -
-                {stateEndTime.format('LT')}
-              </div>
-            </div>
-            <div className="toolbar">
-              <IconButton
-                onClick={() => {
-                  console.log('called delete'); onDelete();
-                }}
-              >
-                <DeleteOutlineIcon />
-              </IconButton>
-            </div>
-          </div>
-        </Popper>
-        )}
+      {id === editingEvent && eventRef && (
+        <EventEditor
+          title={title}
+          startTime={stateStartTime}
+          endTime={stateEndTime}
+          onBlur={onBlur}
+          onUpdateTitle={onUpdateTitle}
+          onUpdateNotes={onUpdateNotes}
+          onDelete={onDelete}
+          eventRef={eventRef}
+          notes={notes}
+        />
+      )}
     </>
   );
 };

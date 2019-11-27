@@ -1,9 +1,10 @@
-import moment from 'moment';
 import { ThunkAction as BaseThunkAction } from 'redux-thunk';
 
 import {
   Event, Todo, User, TimeRange,
 } from '../types';
+
+import { fromSerializedEvent } from './storage';
 
 import db from '../firebase/firebase';
 
@@ -125,6 +126,15 @@ export function updateTimeRange(event: Event, { startTime, endTime }: TimeRange)
   };
 }
 
+export function updateNotes(event: Event, { notes }: { notes: string }): ThunkAction {
+  const { id } = event;
+  return (dispatch) => {
+    db.collection('events').doc(id).update({
+      notes,
+    }).then(() => dispatch({ type: UPDATE_EVENT, id, event: { ...event, notes } }));
+  };
+}
+
 export function deleteEvent(id: string): ThunkAction {
   return (dispatch) => {
     db.collection('events').doc(id).delete().then(() => {
@@ -181,15 +191,16 @@ export function logIn(user: User): ThunkAction {
           type: ADD_EVENTS,
           events: querySnapshot.docs.map((doc) => {
             const {
-              startTime, endTime, uid, title,
+              startTime, endTime, uid, title, notes,
             } = doc.data();
-            return {
-              startTime: moment(startTime * 1000),
-              endTime: moment(endTime * 1000),
+            return fromSerializedEvent({
               id: doc.id,
+              startTime,
+              endTime,
               uid,
               title,
-            };
+              notes,
+            });
           }),
         });
       });

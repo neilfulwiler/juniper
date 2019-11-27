@@ -8,7 +8,7 @@ import {
   timeRangesOverlap, useColors, roundTo,
 } from '../utils';
 import {
-  createEvent, deleteEvent, updateTimeRange, updateTitle, SET_EDITING_EVENT,
+  createEvent, deleteEvent, updateTimeRange, updateNotes, updateTitle, SET_EDITING_EVENT,
 } from '../redux/actions';
 import Event from './Event';
 import {
@@ -52,7 +52,7 @@ const SelectingEvent: React.FC<{timeSlots: Moment[], timeRange: TimeRange}> = ({
 const Calendar: React.FC<{}> = () => {
   const dispatch = useDispatch();
   const events = useSelector<State, EventType[]>((state) => state.events);
-  const editingEvent = useSelector<State, string | undefined>((state) => state.editingEvent);
+
   const user = useSelector<State, User | undefined>((state) => state.user);
   const [selection, setSelection] = useState<TimeRange | undefined>(undefined);
 
@@ -128,12 +128,14 @@ const Calendar: React.FC<{}> = () => {
           onUpdateTitle={({ title }: {title: string}) => {
             dispatch(updateTitle(event, { title }));
           }}
+          onUpdateNotes={(args) => {
+            dispatch(updateNotes(event, args));
+          }}
           onUpdateTimeRange={(timeRange: TimeRange) => {
             if (event.startTime.diff(timeRange.startTime) !== 0 || event.endTime.diff(timeRange.endTime) !== 0) {
               dispatch(updateTimeRange(event, timeRange));
             }
           }}
-          editing={editingEvent === event.id}
           style={{ backgroundColor: getColor(event.title) }}
         />
         )

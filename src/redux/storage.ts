@@ -22,30 +22,33 @@ interface SerializedEvent extends SerializedTimeRange {
   id: string,
   uid: string,
   title: string,
+  notes?: string,
 }
 
 const fromSerializedTodo = (todo: SerializedTodo): Todo => todo;
 
 const toSerializedTodo = (todo: Todo): SerializedTodo => todo;
 
-const fromSerializedEvent = ({
-  id, uid, title, startTime, endTime,
+export const fromSerializedEvent = ({
+  id, uid, title, startTime, endTime, notes,
 }: SerializedEvent): Event => ({
   id,
   uid,
   title,
   startTime: moment.unix(startTime),
   endTime: moment.unix(endTime),
+  notes,
 });
 
 const toSerializedEvent = ({
-  id, uid, title, startTime, endTime,
+  id, uid, title, startTime, endTime, notes,
 }: Event): SerializedEvent => ({
   id,
   uid,
   title,
   startTime: startTime.unix(),
   endTime: endTime.unix(),
+  notes,
 });
 
 const fromSerializedState = ({ todos, events }: SerializedState): State => ({

@@ -47,8 +47,9 @@ export default function todoApp(state: State = initialState, action: Action): St
     case ADD_EVENTS:
       return {
         ...state,
-        events: state.events.concat(action.events
-          .filter(({ id }: Event) => state.events.findIndex((e) => e.id === id) === -1)),
+        events: state.events
+          .filter(({ id }: Event) => action.events.findIndex((e) => e.id === id) === -1)
+          .concat(action.events),
       };
     case SET_EDITING_EVENT:
       return {
@@ -59,7 +60,6 @@ export default function todoApp(state: State = initialState, action: Action): St
       return {
         ...state,
         events: replace(state.events, (event) => event.id === action.id, action.event),
-        editingEvent: undefined,
       };
     case DELETE_EVENT:
       return {
@@ -70,8 +70,9 @@ export default function todoApp(state: State = initialState, action: Action): St
     case ADD_TODOS:
       return {
         ...state,
-        todos: sort(state.todos.concat(action.todos
-          .filter(({ id }: Todo) => state.todos.findIndex((e) => e.id === id) === -1))),
+        todos: sort(state.todos
+          .filter(({ id }: Todo) => action.todos.findIndex((e) => e.id === id) === -1)
+          .concat(action.todos)),
       };
     case DELETE_TODO:
       return {

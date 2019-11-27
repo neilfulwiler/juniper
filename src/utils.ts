@@ -76,7 +76,9 @@ export function useEventListener(eventName: string, handler: (event: any) => voi
       // Make sure element supports addEventListener
       // On
       const isSupported = element && element.addEventListener;
-      if (!isSupported) return () => {};
+      if (!isSupported) {
+        return () => {};
+      }
 
       // Create event listener that calls handler function stored in ref
       const eventListener = (event: any) => savedHandler.current && savedHandler.current(event);

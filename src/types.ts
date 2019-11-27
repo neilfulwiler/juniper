@@ -27,4 +27,5 @@ export interface Event extends TimeRange {
   id: string,
   uid: string,
   title: string,
+  notes?: string,
 }
