@@ -67,33 +67,14 @@ export function createEvent(user: User, { startTime, endTime }: TimeRange): Thun
   };
 }
 
-export function updateTitle(event: Event, { title }: {title: string}): ThunkAction {
+export function updateEvent(event: Event, updates: Partial<Event>): ThunkAction {
   const { id } = event;
   return (dispatch) => {
-    db.collection('events').doc(id).update({
-      title,
-    }).then(() => {
-      dispatch({ type: UPDATE_EVENT, id, event: { ...event, title } });
+    db.collection('events').doc(id).update(
+      updates,
+    ).then(() => {
+      dispatch({ type: UPDATE_EVENT, id, event: { ...event, ...updates } });
     });
-  };
-}
-
-export function updateTimeRange(event: Event, { startTime, endTime }: TimeRange): ThunkAction {
-  const { id } = event;
-  return (dispatch) => {
-    db.collection('events').doc(id).update({
-      startTime: startTime.unix(),
-      endTime: endTime.unix(),
-    }).then(() => dispatch({ type: UPDATE_EVENT, id, event: { ...event, startTime, endTime } }));
-  };
-}
-
-export function updateNotes(event: Event, { notes }: { notes: string }): ThunkAction {
-  const { id } = event;
-  return (dispatch) => {
-    db.collection('events').doc(id).update({
-      notes,
-    }).then(() => dispatch({ type: UPDATE_EVENT, id, event: { ...event, notes } }));
   };
 }
 

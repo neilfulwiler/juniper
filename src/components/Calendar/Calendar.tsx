@@ -8,7 +8,7 @@ import {
   timeRangesOverlap, useColors, roundTo,
 } from '../../utils';
 import {
-  createEvent, deleteEvent, updateTimeRange, updateNotes, updateTitle, SET_EDITING_EVENT,
+  createEvent, deleteEvent, updateEvent, SET_EDITING_EVENT,
 } from '../../redux/actions/events';
 import Event from './Event';
 import {
@@ -125,14 +125,14 @@ const Calendar: React.FC<{}> = () => {
             dispatch(deleteEvent(event.id));
           }}
           onUpdateTitle={({ title }: {title: string}) => {
-            dispatch(updateTitle(event, { title }));
+            dispatch(updateEvent(event, { title }));
           }}
           onUpdateNotes={(args) => {
-            dispatch(updateNotes(event, args));
+            dispatch(updateEvent(event, args));
           }}
           onUpdateTimeRange={(timeRange: TimeRange) => {
             if (event.startTime.diff(timeRange.startTime) !== 0 || event.endTime.diff(timeRange.endTime) !== 0) {
-              dispatch(updateTimeRange(event, timeRange));
+              dispatch(updateEvent(event, timeRange));
             }
           }}
           style={{ backgroundColor: getColor(event.title) }}
