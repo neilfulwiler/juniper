@@ -4,9 +4,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import { ResponsivePie } from '@nivo/pie';
 import { useSelector } from 'react-redux';
-import { getEventsByName, useColors } from '../utils';
+
+import { getEventsByName, useColors } from '../../utils';
 import './styles.scss';
-import { Event, State } from '../types';
+import { Event, State } from '../../types';
 
 // make sure parent container have a defined height when using
 // responsive component, otherwise height will be 0 and
@@ -14,7 +15,7 @@ import { Event, State } from '../types';
 // website examples showcase many properties,
 // you'll often use just a few of them.
 function MyResponsivePie() {
-  const events = useSelector<State, Event[]>((state) => state.events);
+  const events = useSelector<State, Event[]>((state) => state.events.entities);
   const getColor = useColors();
 
   if (events.length === 0) {

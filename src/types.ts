@@ -1,10 +1,13 @@
 import { Moment } from 'moment';
 
+import { State as EventsState } from './redux/reducers/events';
+import { State as TodosState } from './redux/reducers/todos';
+import { State as UserState } from './redux/reducers/user';
+
 export interface State {
-  user?: User,
-  todos: Todo[],
-  events: Event[],
-  editingEvent?: string,
+  user: UserState,
+  todos: TodosState,
+  events: EventsState,
 }
 
 export interface User {

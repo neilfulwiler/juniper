@@ -1,24 +1,23 @@
 import React, {
-  useCallback, useState, useRef,
+  useCallback, useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment, { Moment } from 'moment';
 import './styles.scss';
 import {
   timeRangesOverlap, useColors, roundTo,
-} from '../utils';
+} from '../../utils';
 import {
   createEvent, deleteEvent, updateTimeRange, updateNotes, updateTitle, SET_EDITING_EVENT,
-} from '../redux/actions';
+} from '../../redux/actions/events';
 import Event from './Event';
 import {
   Event as EventType, State, TimeRange, User,
-} from '../types';
-import { useMouseSelection } from './utils';
+} from '../../types';
 import {
   timeSlotDuration, TIME_SLOT_HEIGHT, SIDEBAR_WIDTH, FONT_SIZE,
-} from './constants';
-
+  useMouseSelection,
+} from './utils';
 
 const SelectingEvent: React.FC<{timeSlots: Moment[], timeRange: TimeRange}> = ({
   timeSlots,
@@ -51,9 +50,9 @@ const SelectingEvent: React.FC<{timeSlots: Moment[], timeRange: TimeRange}> = ({
 
 const Calendar: React.FC<{}> = () => {
   const dispatch = useDispatch();
-  const events = useSelector<State, EventType[]>((state) => state.events);
+  const events = useSelector<State, EventType[]>((state) => state.events.entities);
 
-  const user = useSelector<State, User | undefined>((state) => state.user);
+  const user = useSelector<State, User | undefined>((state) => state.user.entity);
   const [selection, setSelection] = useState<TimeRange | undefined>(undefined);
 
   const startTime = moment().startOf('day');

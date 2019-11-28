@@ -2,8 +2,8 @@ import moment from 'moment';
 import { Todo, Event, State } from '../types';
 
 interface SerializedState {
-  todos: SerializedTodo[],
-  events: SerializedEvent[],
+  todos: {entities: SerializedTodo[]},
+  events: {entities: SerializedEvent[]},
 }
 
 interface SerializedTodo {
@@ -52,13 +52,14 @@ const toSerializedEvent = ({
 });
 
 const fromSerializedState = ({ todos, events }: SerializedState): State => ({
-  todos: todos.map(fromSerializedTodo),
-  events: events.map(fromSerializedEvent),
+  todos: { entities: todos.map(fromSerializedTodo) },
+  events: { entities: events.map(fromSerializedEvent), ui: { editingEvent: undefined } },
+  user: { entity: undefined },
 });
 
 const toSerializedState = ({ todos, events }: State): SerializedState => ({
-  todos: todos.map(toSerializedTodo),
-  events: events.map(toSerializedEvent),
+  todos: { entities: todos.entities.map(toSerializedTodo) },
+  events: { entities: events.entities.map(toSerializedEvent) },
 });
 
 export const loadState = (): State | undefined => {

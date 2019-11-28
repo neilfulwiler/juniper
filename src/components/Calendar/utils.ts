@@ -1,9 +1,19 @@
 import { useState, useCallback } from 'react';
 import {
   useEventListener,
-} from '../utils';
+} from '../../utils';
 
 type Handler = (args: {start: number, end: number}) => void;
+
+// height from css = 48px
+export const TIME_SLOT_HEIGHT = 48;
+
+// time slot height is 1hr
+export const timeSlotDuration = 1; // hours
+
+export const SIDEBAR_WIDTH = 105;
+
+export const FONT_SIZE = 12;
 
 export function useMouseSelection(onSelecting: Handler, onSelection: Handler) {
   const [selectionStart, setSelectionStart] = useState<number | undefined>(undefined);

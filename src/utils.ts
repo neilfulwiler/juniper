@@ -39,7 +39,7 @@ export function getEventsByName(events: Event[]): [string, Event[]][] {
 }
 
 export function useColors() {
-  const events = useSelector<State, Event[]>((state) => state.events);
+  const events = useSelector<State, Event[]>((state) => state.events.entities);
   const eventsByName = getEventsByName(events).map(([title]) => title);
   return useCallback((title) => {
     if (title === undefined) {

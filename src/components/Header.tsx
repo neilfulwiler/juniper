@@ -5,8 +5,8 @@ import IconButton from '@material-ui/core/IconButton';
 import AppsIcon from '@material-ui/icons/Apps';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { logIn, logOut } from './redux/actions';
-import { State, User } from './types';
+import { logIn, logOut } from '../redux/actions/user';
+import { State, User } from '../types';
 
 
 function signUp() {
@@ -15,7 +15,7 @@ function signUp() {
 
 export default function Header() {
   const dispatch = useDispatch();
-  const user = useSelector<State, User | undefined>((state) => state.user);
+  const user = useSelector<State, User | undefined>((state) => state.user.entity);
 
   useEffect(() => {
     firebase.auth && firebase.auth().onAuthStateChanged((currentUser: any) => {
