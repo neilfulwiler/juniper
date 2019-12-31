@@ -117,3 +117,11 @@
   border-right: 10px solid white;
   background-color: transparent;
 }
+
+.clock > .react-time-picker__wrapper {
+  border: none;
+}
+
+.clock > .react-time-picker__wrapper > .react-time-picker__inputGroup > select {
+  -webkit-appearance: none;
+}

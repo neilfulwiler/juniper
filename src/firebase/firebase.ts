@@ -1,7 +1,11 @@
 import firebase from '@firebase/app';
-import { FirebaseFirestore } from '@firebase/firestore-types';
+
 import '@firebase/firestore';
 import '@firebase/auth';
+
+import { Api } from './api';
+
+import mock from './mock';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBP_5Gk3Z5PkoxrdThW9o5UImLlH4bMBQw',
@@ -16,6 +20,7 @@ const firebaseConfig = {
 // Initialize Cloud Firestore through Firebase
 firebase.initializeApp(firebaseConfig);
 
-const db = (firebase.firestore && firebase.firestore()) as FirebaseFirestore;
+
+const db = (firebase.firestore && firebase.firestore()) as Api;
 
 export default db;

@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useState,
+  useCallback, useEffect, useState,
   CSSProperties,
 } from 'react';
 import { useSelector } from 'react-redux';
@@ -43,6 +43,11 @@ const Event: React.FC<Props> = ({
     id, title, startTime, endTime, notes,
   } = event;
   const [[stateStartTime, stateEndTime], setStateTimeRange] = useState([startTime, endTime]);
+
+  useEffect(() => {
+    setStateTimeRange([startTime, endTime]);
+  }, [startTime, endTime]);
+
   const eventTop = stateStartTime.diff(timeSlots[0], 'hours', true) * TIME_SLOT_HEIGHT;
   const eventHeight = stateEndTime.diff(stateStartTime, 'hours', true) * TIME_SLOT_HEIGHT;
   const displayEventHeight = Math.max(eventHeight, 0.75 * TIME_SLOT_HEIGHT);
@@ -108,9 +113,9 @@ const Event: React.FC<Props> = ({
   const onAdjustStartTimeComplete = useCallback(({ end }) => {
     const newStartTime = yToTime(end);
     if (newStartTime.diff(endTime) < 0) {
-      setStateTimeRange([newStartTime, endTime]);
+      onUpdateTimeRange({ startTime: newStartTime, endTime });
     } else {
-      setStateTimeRange([endTime, newStartTime]);
+      onUpdateTimeRange({ startTime: endTime, endTime: newStartTime });
     }
   }, [yToTime, endTime]);
 
@@ -181,6 +186,7 @@ const Event: React.FC<Props> = ({
           startTime={stateStartTime}
           endTime={stateEndTime}
           onBlur={onBlur}
+          onUpdateTimeRange={onUpdateTimeRange}
           onUpdateTitle={onUpdateTitle}
           onUpdateNotes={onUpdateNotes}
           onDelete={onDelete}

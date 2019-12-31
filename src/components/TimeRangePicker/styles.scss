@@ -1,0 +1,40 @@
+select {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.clock {
+  -webkit-appearance: none;
+  padding: 10px;
+  border-radius: 0px;
+  background: transparent;
+}
+
+.time-picker-autocomplete {
+  width: 70px;
+}
+
+.time-range {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 180px;
+}
+
+#timepicker .MuiAutocomplete-inputRoot {
+  padding-right: 8px;
+}
+
+#timepicker.invalid .MuiAutocomplete-inputRoot {
+  background-color: #f5656563;
+}
+
+.validation-failure {
+  background-color: #333a40;
+  color: white;
+  font-size: 13px;
+  padding: 12px;
+  border-radius: 3px;
+  margin: 6px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+}

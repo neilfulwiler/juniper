@@ -70,9 +70,13 @@ export function createEvent(user: User, { startTime, endTime }: TimeRange): Thun
 export function updateEvent(event: Event, updates: Partial<Event>): ThunkAction {
   const { id } = event;
   return (dispatch) => {
-    db.collection('events').doc(id).update(
-      updates,
-    ).then(() => {
+    const { startTime, endTime } = updates;
+
+    db.collection('events').doc(id).update({
+      ...updates,
+      ...(startTime ? { startTime: startTime.unix() } : {}),
+      ...(endTime ? { endTime: endTime.unix() } : {}),
+    }).then(() => {
       dispatch({ type: UPDATE_EVENT, id, event: { ...event, ...updates } });
     });
   };
@@ -80,8 +84,8 @@ export function updateEvent(event: Event, updates: Partial<Event>): ThunkAction 
 
 export function deleteEvent(id: string): ThunkAction {
   return (dispatch) => {
-    // db.collection('events').doc(id).delete().then(() => {
-    dispatch({ type: DELETE_EVENT, id });
-    // });
+    db.collection('events').doc(id).delete().then(() => {
+      dispatch({ type: DELETE_EVENT, id });
+    });
   };
 }

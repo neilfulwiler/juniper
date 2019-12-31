@@ -7,7 +7,9 @@ import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
+import TimeRangePicker from '../TimeRangePicker';
+import { momentToTime, Time } from '../TimeRangePicker/utils';
 
 interface Props {
   title: string,
@@ -17,12 +19,14 @@ interface Props {
   onUpdateNotes: (args: {notes: string}) => void,
   onBlur: () => void,
   onDelete: () => void,
+  onUpdateTimeRange: (args: {startTime: Moment, endTime: Moment}) => void,
   eventRef: HTMLDivElement,
   notes?: string,
 }
 
 const EventEditor: React.FC<Props> = ({
   title, startTime, endTime, onUpdateTitle, onBlur, onUpdateNotes, onDelete, eventRef, notes,
+  onUpdateTimeRange,
 }) => {
   const [value, setValue] = useState(title);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -55,6 +59,11 @@ const EventEditor: React.FC<Props> = ({
 
   const updateNotes = throttle((state) => onUpdateNotes({ notes: JSON.stringify(convertToRaw(state.getCurrentContent())) }));
 
+  const range = [
+    momentToTime(startTime),
+    momentToTime(endTime),
+  ];
+
   return (
     <Popper
       open
@@ -84,10 +93,19 @@ const EventEditor: React.FC<Props> = ({
               }}
             />
             <div className="eventEditor-timerange">
-              {startTime.format('LT')}
-              {' '}
-    -
-              {endTime.format('LT')}
+              <TimeRangePicker
+                range={range}
+                onRangeChange={([start, end]: [Time, Time]) => {
+                  const newStartTime = moment(startTime)
+                    .hours(start.hours)
+                    .minutes(start.minutes);
+                  const newEndTime = moment(endTime)
+                    .hours(end.hours)
+                    .minutes(end.minutes);
+                  console.log(`new time range: ${newStartTime.format()} - ${newEndTime.format()}`);
+                  onUpdateTimeRange({ startTime: newStartTime, endTime: newEndTime });
+                }}
+              />
             </div>
 
           </div>

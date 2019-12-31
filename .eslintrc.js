@@ -25,6 +25,7 @@ module.exports = {
   ],
   rules: {
     'react/jsx-filename-extension': [2, { 'extensions': ['.js', '.jsx', '.ts', '.tsx']  }],
+    'max-classes-per-file': 'off',
   },
   settings: {
     'import/resolver': {
