@@ -7,6 +7,7 @@ import Popper from '@material-ui/core/Popper';
 import IconButton from '@material-ui/core/IconButton';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import CloseIcon from '@material-ui/icons/Close';
 import moment, { Moment } from 'moment';
 import TimeRangePicker from '../TimeRangePicker';
 import { momentToTime, Time } from '../TimeRangePicker/utils';
@@ -20,12 +21,13 @@ interface Props {
   onBlur: () => void,
   onDelete: () => void,
   onUpdateTimeRange: (args: {startTime: Moment, endTime: Moment}) => void,
+  onStopEditing: () => void,
   eventRef: HTMLDivElement,
   notes?: string,
 }
 
 const EventEditor: React.FC<Props> = ({
-  title, startTime, endTime, onUpdateTitle, onBlur, onUpdateNotes, onDelete, eventRef, notes,
+  title, startTime, endTime, onUpdateTitle, onBlur, onUpdateNotes, onDelete, onStopEditing, eventRef, notes,
   onUpdateTimeRange,
 }) => {
   const [value, setValue] = useState(title);
@@ -121,6 +123,11 @@ const EventEditor: React.FC<Props> = ({
               onClick={() => onDelete()}
             >
               <DeleteOutlineIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => onStopEditing()}
+            >
+              <CloseIcon />
             </IconButton>
           </div>
         </div>

@@ -2,12 +2,15 @@ import React, {
   useCallback, useEffect, useState,
   CSSProperties,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import moment, { Moment } from 'moment';
 import './styles.scss';
 import {
   roundTo,
 } from '../../utils';
+import {
+  SET_EDITING_EVENT,
+} from '../../redux/actions/events';
 import { State, Event as EventType, TimeRange } from '../../types';
 import { TIME_SLOT_HEIGHT, useMouseSelection } from './utils';
 import EventEditor from './EventEditor';
@@ -37,6 +40,7 @@ const Event: React.FC<Props> = ({
   onBlur,
   onClick,
 }: Props) => {
+  const dispatch = useDispatch();
   const editingEvent = useSelector<State, string | undefined>((state) => state.events.ui.editingEvent);
   const [eventRef, setEventRef] = useState<HTMLDivElement | undefined>();
   const {
@@ -190,6 +194,10 @@ const Event: React.FC<Props> = ({
           onUpdateTitle={onUpdateTitle}
           onUpdateNotes={onUpdateNotes}
           onDelete={onDelete}
+          onStopEditing={() => dispatch({
+            type: SET_EDITING_EVENT,
+            id: undefined,
+          })}
           eventRef={eventRef}
           notes={notes}
         />
