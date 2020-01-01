@@ -8,9 +8,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Popper from '@material-ui/core/Popper';
 import { makeStyles } from '@material-ui/core/styles';
 import AppsIcon from '@material-ui/icons/Apps';
+import ListAltIcon from '@material-ui/icons/ListAlt';
+import NotesIcon from '@material-ui/icons/Notes';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { changeApp } from '../redux/actions/nav';
 import { logIn, logOut } from '../redux/actions/user';
 import { State, User } from '../types';
 
@@ -37,6 +40,7 @@ const useStyles = makeStyles({
 });
 
 const AppList: React.FC<{anchorEl: HTMLElement}> = ({ anchorEl }: {anchorEl: HTMLElement}) => {
+  const dispatch = useDispatch();
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
 
@@ -44,6 +48,14 @@ const AppList: React.FC<{anchorEl: HTMLElement}> = ({ anchorEl }: {anchorEl: HTM
     <Popper open anchorEl={anchorEl}>
       <Card>
         <CardContent>
+          <IconButton onClick={() => dispatch(changeApp('Todos'))}>
+            <ListAltIcon />
+          </IconButton>
+
+          <IconButton onClick={() => dispatch(changeApp('Notes'))}>
+            <NotesIcon />
+          </IconButton>
+
           <Typography className={classes.title} color="textSecondary" gutterBottom>
               Word of the Day
           </Typography>

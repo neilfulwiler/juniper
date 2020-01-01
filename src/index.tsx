@@ -13,6 +13,7 @@ import './firebase/firebase';
 import events from './redux/reducers/events';
 import todos from './redux/reducers/todos';
 import user from './redux/reducers/user';
+import nav from './redux/reducers/nav';
 import { Action } from './redux/actions';
 import { loadState, saveState } from './redux/storage';
 import { State } from './types';
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   events,
   todos,
   user,
+  nav,
 });
 
 const persistedState = loadState();

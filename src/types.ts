@@ -3,11 +3,13 @@ import { Moment } from 'moment';
 import { State as EventsState } from './redux/reducers/events';
 import { State as TodosState } from './redux/reducers/todos';
 import { State as UserState } from './redux/reducers/user';
+import { State as NavState } from './redux/reducers/nav';
 
 export interface State {
   user: UserState,
   todos: TodosState,
   events: EventsState,
+  nav: NavState,
 }
 
 export interface User {
