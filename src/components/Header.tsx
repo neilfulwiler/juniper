@@ -13,7 +13,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import Typography from '@material-ui/core/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { changeApp } from '../redux/actions/nav';
+import { changeApp, App } from '../redux/actions/nav';
 import { logIn, logOut } from '../redux/actions/user';
 import { State, User } from '../types';
 
@@ -39,8 +39,12 @@ const useStyles = makeStyles({
   },
 });
 
-const AppList: React.FC<{anchorEl: HTMLElement}> = ({ anchorEl }: {anchorEl: HTMLElement}) => {
-  const dispatch = useDispatch();
+interface AppListProps {
+  anchorEl: HTMLElement,
+  selectApp: (app: App) => void,
+}
+
+const AppList: React.FC<AppListProps> = ({ anchorEl, selectApp }: AppListProps) => {
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
 
@@ -48,34 +52,15 @@ const AppList: React.FC<{anchorEl: HTMLElement}> = ({ anchorEl }: {anchorEl: HTM
     <Popper open anchorEl={anchorEl}>
       <Card>
         <CardContent>
-          <IconButton onClick={() => dispatch(changeApp('Todos'))}>
+
+          <IconButton onClick={() => selectApp('Todos')}>
             <ListAltIcon />
           </IconButton>
 
-          <IconButton onClick={() => dispatch(changeApp('Notes'))}>
+          <IconButton onClick={() => selectApp('Notes')}>
             <NotesIcon />
           </IconButton>
 
-          <Typography className={classes.title} color="textSecondary" gutterBottom>
-              Word of the Day
-          </Typography>
-          <Typography variant="h5" component="h2">
-              be
-            {bull}
-  nev
-            {bull}
-  o
-            {bull}
-  lent
-          </Typography>
-          <Typography className={classes.pos} color="textSecondary">
-              adjective
-          </Typography>
-          <Typography variant="body2" component="p">
-              well meaning and kindly.
-            <br />
-              "a benevolent smile"
-          </Typography>
         </CardContent>
       </Card>
     </Popper>
@@ -114,7 +99,16 @@ export default function Header() {
             <AppsIcon />
           </IconButton>
         </div>
-        {showAppsList && appListButtonEl && <AppList anchorEl={appListButtonEl} />}
+        {showAppsList && appListButtonEl
+          && (
+          <AppList
+            anchorEl={appListButtonEl}
+            selectApp={(app: App) => {
+              setShowAppsList(false);
+              dispatch(changeApp(app));
+            }}
+          />
+          )}
       </>
     )
     : (
