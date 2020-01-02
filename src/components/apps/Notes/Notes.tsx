@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   convertFromRaw, convertToRaw, Editor, EditorState,
 } from 'draft-js';
@@ -17,13 +17,17 @@ const Notes: React.FC<Props> = ({ notes, updateNotes }) => {
       : EditorState.createWithContent(convertFromRaw(JSON.parse(notes))),
   );
 
+  useCallback(() => {
+    notes !== undefined && setNotesEditorState(EditorState.createWithContent(convertFromRaw(JSON.parse(notes))));
+  }, [notes]);
+
   return (
     <div className="notes-editor">
       <Editor
         editorState={notesEditorState}
         onChange={(state: EditorState) => {
           setNotesEditorState(state);
-          updateNotes(state);
+          updateNotes(JSON.stringify(convertToRaw(state.getCurrentContent())));
         }}
       />
     </div>

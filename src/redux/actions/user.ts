@@ -1,10 +1,12 @@
 import { ThunkAction as BaseThunkAction } from 'redux-thunk';
+import moment from 'moment';
 
+import { ADD_NOTES, Action as NotesAction } from './notes';
 import { ADD_TODOS, Action as TodoAction } from './todos';
 import { ADD_EVENTS, Action as EventAction } from './events';
 
 import {
-  User,
+  User, Note,
 } from '../../types';
 
 import { fromSerializedEvent } from '../storage';
@@ -25,7 +27,7 @@ type LoggedOut = {
 
 export type Action = LogIn | LoggedOut;
 
-type ThunkAction = BaseThunkAction<void, {}, {}, Action | TodoAction | EventAction>;
+type ThunkAction = BaseThunkAction<void, {}, {}, Action | TodoAction | EventAction | NotesAction>;
 
 export function logOut(): ThunkAction {
   return (dispatch) => {
@@ -66,6 +68,21 @@ export function logIn(user: User): ThunkAction {
               title,
               notes,
             });
+          }),
+        });
+      });
+      db.collection('notes').where('uid', '==', user.uid).get().then((querySnapshot) => {
+        dispatch({
+          type: ADD_NOTES,
+          notes: querySnapshot.docs.map((doc) => {
+            const {
+              date, notes,
+            } = doc.data();
+            return {
+              id: doc.id,
+              date: moment(date),
+              notes,
+            };
           }),
         });
       });

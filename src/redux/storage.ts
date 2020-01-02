@@ -58,6 +58,7 @@ const fromSerializedState = ({ todos, events, nav }: SerializedState): State => 
   events: { entities: events.entities.map(fromSerializedEvent), ui: { editingEvent: undefined } },
   user: { entity: undefined },
   nav,
+  notes: { entities: { byId: {}, allIds: [] } },
 });
 
 const toSerializedState = ({ todos, events, nav }: State): SerializedState => ({

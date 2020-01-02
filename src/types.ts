@@ -4,16 +4,30 @@ import { State as EventsState } from './redux/reducers/events';
 import { State as TodosState } from './redux/reducers/todos';
 import { State as UserState } from './redux/reducers/user';
 import { State as NavState } from './redux/reducers/nav';
+import { State as NotesState } from './redux/reducers/notes';
 
 export interface State {
   user: UserState,
   todos: TodosState,
   events: EventsState,
   nav: NavState,
+  notes: NotesState,
 }
 
 export interface User {
   uid: string,
+}
+
+export interface Date {
+  year: number,
+  month: number,
+  day: number,
+}
+
+export interface Note {
+  id: string,
+  date: Moment,
+  notes: string,
 }
 
 export interface Todo {

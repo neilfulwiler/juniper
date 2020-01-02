@@ -14,6 +14,7 @@ import events from './redux/reducers/events';
 import todos from './redux/reducers/todos';
 import user from './redux/reducers/user';
 import nav from './redux/reducers/nav';
+import notes from './redux/reducers/notes';
 import { Action } from './redux/actions';
 import { loadState, saveState } from './redux/storage';
 import { State } from './types';
@@ -26,12 +27,10 @@ const rootReducer = combineReducers({
   todos,
   user,
   nav,
+  notes,
 });
 
 const persistedState = loadState();
-console.log('persisted state');
-console.log(persistedState);
-console.log('persisted state');
 const store = createStore<State, Action, unknown, unknown>(rootReducer, persistedState, applyMiddleware(thunk, logger));
 
 console.log(store.getState());
