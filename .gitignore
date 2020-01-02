@@ -26,3 +26,5 @@ scripts/bin
 scripts/.Python
 scripts/include
 scripts/lib
+
+*.pickle
