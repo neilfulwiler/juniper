@@ -32,9 +32,12 @@ export interface Note {
 
 export interface Todo {
   id: string,
-  sortOrder: number,
   completed: boolean,
   name: string,
+
+  // prev & next point to 2 other todos forming a doubly linked list
+  prev?: string,
+  next?: string,
 }
 
 export interface TimeRange {

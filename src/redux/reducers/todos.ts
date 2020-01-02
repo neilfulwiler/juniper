@@ -1,36 +1,54 @@
+import _ from 'lodash';
 import { Todo } from '../../types';
 import {
   Action, ADD_TODOS, DELETE_TODO, COMPLETE_TODO,
 } from '../actions/todos';
-import { replace } from './utils';
 
 export interface State {
-  entities: Todo[],
+  entities: {
+    byId: {[key: string]: Todo},
+    allIds: string[],
+  }
 }
 
-function sort(todos: Todo[]): Todo[] {
-  return todos.sort((a, b) => a.sortOrder - b.sortOrder);
-}
+const initialState: State = { entities: { byId: {}, allIds: [] } };
 
-export default function reducer(state: State = { entities: [] }, action: Action): State {
+export default function reducer(state: State = initialState, action: Action): State {
   switch (action.type) {
     case ADD_TODOS:
       return {
         ...state,
-        entities: sort(state.entities
-          .filter(({ id }: Todo) => action.todos.findIndex((e) => e.id === id) === -1)
-          .concat(action.todos)),
+        entities: {
+          byId: {
+            ...state.entities.byId,
+            ...action.todos.reduce((acc, todo) => ({ ...acc, [todo.id]: todo }), {}),
+          },
+          allIds: _.uniq([...state.entities.allIds, ...action.todos.map(({ id }) => id)]),
+        },
       };
     case DELETE_TODO:
       return {
         ...state,
-        entities: state.entities.filter(({ id }) => id !== action.id),
+        entities: {
+          byId: state.entities.allIds.filter((id) => id !== action.id)
+            .reduce((acc, id) => ({ ...acc, [id]: state.entities.byId[id] }), {}),
+          allIds: state.entities.allIds.filter((id) => id !== action.id),
+        },
       };
 
     case COMPLETE_TODO:
       return {
         ...state,
-        entities: replace(state.entities, (todo) => todo.id === action.id, { completed: action.completed }),
+        entities: {
+          byId: {
+            ...state.entities.byId,
+            [action.id]: {
+              ...state.entities.byId[action.id],
+              completed: action.completed,
+            },
+          },
+          allIds: state.entities.allIds,
+        },
       };
 
     default:

@@ -3,10 +3,6 @@ import firebase from '@firebase/app';
 import '@firebase/firestore';
 import '@firebase/auth';
 
-import { Api } from './api';
-
-import mock from './mock';
-
 const firebaseConfig = {
   apiKey: 'AIzaSyBP_5Gk3Z5PkoxrdThW9o5UImLlH4bMBQw',
   authDomain: 'floss-9feb7.firebaseapp.com',
@@ -21,6 +17,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 
-const db = (firebase.firestore && firebase.firestore()) as Api;
+const db = (firebase.firestore && firebase.firestore()) as FirebaseFirestore;
 
 export default db;
