@@ -21,3 +21,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+scripts/bin
+scripts/.Python
+scripts/include
+scripts/lib
