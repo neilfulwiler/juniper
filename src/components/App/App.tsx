@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import Header from '../Header';
-import Todos from '../Todos/Todos';
+import Todos from '../apps/Todos/App';
+import Notes from '../apps/Notes/App';
 import Sidebar from '../Sidebar';
 import Stats from '../Stats';
 import { State } from '../types';
@@ -18,7 +19,7 @@ function App() {
       content = <Todos />;
       break;
     case 'Notes':
-      content = <h1>hi</h1>;
+      content = <Notes />;
       break;
   }
 

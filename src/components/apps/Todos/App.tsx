@@ -2,14 +2,16 @@ import React, {
   useCallback, useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEventListener } from '../../utils';
-import { completeTodo, deleteTodo as deleteTodoAction, ADD_TODOS } from '../../redux/actions/todos';
-import { State, Todo as TodoType, User } from '../../types';
-import db from '../../firebase/firebase';
+import { useEventListener } from '../../../utils';
+import { completeTodo, deleteTodo as deleteTodoAction, ADD_TODOS } from '../../../redux/actions/todos';
+import { State, Todo as TodoType, User } from '../../../types';
+import db from '../../../firebase/firebase';
 
 import CreateTodo from './CreateTodo';
 import Footer from './Footer';
 import Todo from './Todo';
+
+import './styles.scss';
 
 
 function useKeyBindings(addTodo: () => void): void {

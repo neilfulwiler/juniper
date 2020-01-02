@@ -1,9 +1,11 @@
 import moment from 'moment';
+import { App } from './reducers/nav';
 import { Todo, Event, State } from '../types';
 
 interface SerializedState {
   todos: {entities: SerializedTodo[]},
   events: {entities: SerializedEvent[]},
+  nav: { app: App },
 }
 
 interface SerializedTodo {
@@ -51,15 +53,17 @@ const toSerializedEvent = ({
   notes,
 });
 
-const fromSerializedState = ({ todos, events }: SerializedState): State => ({
-  todos: { entities: todos.map(fromSerializedTodo) },
-  events: { entities: events.map(fromSerializedEvent), ui: { editingEvent: undefined } },
+const fromSerializedState = ({ todos, events, nav }: SerializedState): State => ({
+  todos: { entities: todos.entities.map(fromSerializedTodo) },
+  events: { entities: events.entities.map(fromSerializedEvent), ui: { editingEvent: undefined } },
   user: { entity: undefined },
+  nav,
 });
 
-const toSerializedState = ({ todos, events }: State): SerializedState => ({
+const toSerializedState = ({ todos, events, nav }: State): SerializedState => ({
   todos: { entities: todos.entities.map(toSerializedTodo) },
   events: { entities: events.entities.map(toSerializedEvent) },
+  nav,
 });
 
 export const loadState = (): State | undefined => {
@@ -75,9 +79,5 @@ export const loadState = (): State | undefined => {
 };
 
 export const saveState = (state: State): void => {
-  try {
-    localStorage.setItem('state', JSON.stringify(toSerializedState(state)));
-  } catch {
-    // ignore write errors
-  }
+  localStorage.setItem('state', JSON.stringify(toSerializedState(state)));
 };

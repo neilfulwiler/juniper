@@ -7,7 +7,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 
-import db from '../../firebase/firebase';
+import db from '../../../firebase/firebase';
 
 interface Props {
   name: string,
