@@ -18,13 +18,15 @@ const Notes: React.FC<Props> = ({ notes, updateNotes }) => {
   );
 
   return (
-    <Editor
-      editorState={notesEditorState}
-      onChange={(state: EditorState) => {
-        setNotesEditorState(state);
-        updateNotes(state);
-      }}
-    />
+    <div className="notes-editor">
+      <Editor
+        editorState={notesEditorState}
+        onChange={(state: EditorState) => {
+          setNotesEditorState(state);
+          updateNotes(state);
+        }}
+      />
+    </div>
   );
 };
 

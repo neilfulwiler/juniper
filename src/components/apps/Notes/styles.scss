@@ -1,4 +1,12 @@
 .notes-app {
-  background-color: red;
   height: 100%;
+  padding-right: 48px;
+  display: flex;
+  align-items: flex-start;
+  font-size: 24px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.notes-editor {
+  padding: 24px;
 }

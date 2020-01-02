@@ -12,9 +12,9 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import NotesIcon from '@material-ui/icons/Notes';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { changeApp, App } from '../redux/actions/nav';
-import { logIn, logOut } from '../redux/actions/user';
-import { State, User } from '../types';
+import { changeApp, App } from '../../redux/actions/nav';
+import { logIn, logOut } from '../../redux/actions/user';
+import { State, User } from '../../types';
 
 import './styles.scss';
 

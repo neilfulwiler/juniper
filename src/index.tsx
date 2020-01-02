@@ -18,7 +18,7 @@ import { Action } from './redux/actions';
 import { loadState, saveState } from './redux/storage';
 import { State } from './types';
 
-import App from './components/App/App';
+import App from './components/App';
 
 
 const rootReducer = combineReducers({

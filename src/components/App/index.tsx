@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import Header from '../Header';
-import Todos from '../apps/Todos/App';
-import Notes from '../apps/Notes/App';
+import Todos from '../apps/Todos';
+import Notes from '../apps/Notes';
 import Sidebar from '../Sidebar';
 import Stats from '../Stats';
 import { State } from '../types';
