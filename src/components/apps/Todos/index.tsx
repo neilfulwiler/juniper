@@ -25,10 +25,11 @@ function useKeyBindings(addTodo: () => void): void {
 }
 
 const Todos: React.FC<{}> = () => {
-  const todos = useSelector<State, TodoType[]>((state) => state.todos.entities);
+  const todos = useSelector<State, TodoType[]>((state) => state.todos.ui.sortOrder.map((id) => state.todos.entities.byId[id]));
   const user = useSelector<State, User | undefined>((state) => state.user.entity);
   const dispatch = useDispatch();
   const [editing, setEditing] = useState<string | undefined>(undefined);
+
 
   const addTodo = useCallback(() => {
     if (!user) {
@@ -36,16 +37,29 @@ const Todos: React.FC<{}> = () => {
       return;
     }
 
+    // TODO move this into actions, have the action accept a callback with the
+    // new ID
     // hard to put this into actions because I want to set editing equal to the
     // new id. I could put editing state into redux
-    const sortOrder = Math.max(...todos.map((todo: TodoType) => todo.sortOrder)) + 1;
-    if (isNaN(sortOrder)) throw new Error('bad sort order');
+    const prev = todos[todos.length - 1].id;
     db.collection('todos').add({
       name: '',
       uid: user.uid,
-      sortOrder,
+      prev,
+      next: null,
     }).then(({ id }: {id: string}) => {
-      dispatch({ type: ADD_TODOS, todos: [{ name: '', id, sortOrder }] });
+      db.collection('todos').doc(prev).update({
+        next: id,
+      }).catch((reason) => {
+        console.log(`failed to set on previous element for added todo: ${reason}`);
+      });
+
+      dispatch({
+        type: ADD_TODOS,
+        todos: [{
+          name: '', id, prev, next: null,
+        }],
+      });
       setEditing(id);
     });
   }, [todos, user, dispatch, setEditing]);

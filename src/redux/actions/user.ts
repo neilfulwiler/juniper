@@ -43,12 +43,15 @@ export function logIn(user: User): ThunkAction {
         dispatch({
           type: ADD_TODOS,
           todos: querySnapshot.docs.map((doc) => {
-            const { sortOrder, completed, name } = doc.data();
+            const {
+              completed, name, prev, next,
+            } = doc.data();
             return {
               id: doc.id,
-              sortOrder,
               completed,
               name,
+              prev,
+              next,
             };
           }),
         });

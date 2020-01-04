@@ -1,5 +1,5 @@
 import firebase from '@firebase/app';
-
+import { FirebaseFirestore } from '@firebase/firestore-types';
 import '@firebase/firestore';
 import '@firebase/auth';
 

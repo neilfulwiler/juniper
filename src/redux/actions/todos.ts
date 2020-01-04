@@ -8,18 +8,18 @@ export const ADD_TODOS = 'ADD_TODOS';
 export const DELETE_TODO = 'DELETE_TODO';
 export const COMPLETE_TODO = 'COMPLETE_TODO';
 
-type AddTodos = {
+export type AddTodos = {
   type: typeof ADD_TODOS,
   todos: Todo[],
 }
 
-type CompleteTodo = {
+export type CompleteTodo = {
   type: typeof COMPLETE_TODO,
   id: string,
   completed: boolean,
 }
 
-type DeleteTodo = {
+export type DeleteTodo = {
   type: typeof DELETE_TODO,
   id: string,
 }
@@ -54,7 +54,10 @@ export function deleteTodo(id: string): ThunkAction {
       batch.update(nextRef, { prev });
     }
 
-    db.collection('todos').doc(id).delete().then(() => {
+    const deletedRef = db.collection('todos').doc(id);
+    batch.delete(deletedRef);
+
+    batch.commit().then(() => {
       dispatch({ type: DELETE_TODO, id });
     });
   };

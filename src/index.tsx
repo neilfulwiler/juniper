@@ -36,7 +36,7 @@ const store = createStore<State, Action, unknown, unknown>(rootReducer, persiste
 console.log(store.getState());
 
 store.subscribe(throttle(() => {
-  saveState(store.getState());
+  // saveState(store.getState());
 }, 1000));
 
 
