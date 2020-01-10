@@ -78,7 +78,7 @@ export default function Header() {
         dispatch(logIn(currentUser as User));
       }
     });
-  });
+  }, []);
 
   const content = user !== undefined
     ? (

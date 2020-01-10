@@ -30,10 +30,8 @@ const rootReducer = combineReducers({
   notes,
 });
 
-const persistedState = loadState();
+const persistedState = undefined; // loadState();
 const store = createStore<State, Action, unknown, unknown>(rootReducer, persistedState, applyMiddleware(thunk, logger));
-
-console.log(store.getState());
 
 store.subscribe(throttle(() => {
   // saveState(store.getState());
