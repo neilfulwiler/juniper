@@ -1,5 +1,6 @@
 language: bash
-before_install:
-  - openssl aes-256-cbc -K $encrypted_355e94ba1091_key -iv $encrypted_355e94ba1091_iv -in super_secret.txt.enc -out super_secret.txt -d
-script:
-  - cat super_secret.txt
+jobs:
+  include:
+  - name: testPR
+    script:
+    - echo "$TRAVIS_PULL_REQUEST"
