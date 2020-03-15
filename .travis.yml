@@ -2,5 +2,9 @@ language: bash
 jobs:
   include:
   - name: testPR
+    if: env(TRAVIS_PULL_REQUEST) != "false"
     script:
     - echo "$TRAVIS_PULL_REQUEST"
+  - name: testAlways
+    script:
+    - echo "hi"
