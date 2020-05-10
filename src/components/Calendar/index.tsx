@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment, { Moment } from "moment";
 import "./styles.scss";
@@ -127,6 +127,15 @@ const Calendar: React.FC<{}> = () => {
   const onMouseDown = useMouseSelection(onSelecting, onSelection);
 
   const height = 48; // px of each time slot, should move this somewhere else
+  const heightOfNow = height * 24 * dayRatio;
+
+  useEffect(() => {
+    if (timeSlotsRef) {
+      timeSlotsRef.parentElement.scrollTo({
+        top: heightOfNow - window.screen.height / 2,
+      });
+    }
+  }, [timeSlotsRef]);
 
   const getColor = useColors();
   return (
@@ -135,7 +144,7 @@ const Calendar: React.FC<{}> = () => {
       ref={timeSlotsRefCallback}
       onMouseDown={onMouseDown}
     >
-      <div className="nowIndicator" style={{ top: height * 24 * dayRatio }} />
+      <div className="nowIndicator" style={{ top: heightOfNow }} />
       {timeSlots.map((timeSlot) => (
         <div className="timeSlot" key={timeSlot.format()}>
           {timeSlot.format("HH")}
