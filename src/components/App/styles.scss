@@ -1,4 +1,6 @@
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -9,9 +11,9 @@ html, body, #root {
 .App {
   height: 100%;
   width: 100%;
-  background-color: #607D8B;
+  background-color: #607d8b;
 
-  font-family: 'Bebas Neue', cursive;
+  font-family: "Bebas Neue", cursive;
   font-size: 40px;
 
   display: flex;
@@ -20,15 +22,14 @@ html, body, #root {
 .footer {
   position: fixed;
   bottom: 0px;
-  width: 100%;
+  width: 800px;
   padding-top: 48px;
   padding-left: 48px;
-  padding-bottom: 48px;
-  z-index: 1;
   background: linear-gradient(
-    to top, 
-    rgb(96,125,139), 
-    rgb(96,125,139), 85%,
-    rgba(96,125,139,0.0)
+    to top,
+    rgb(96, 125, 139),
+    rgb(96, 125, 139),
+    85%,
+    rgba(96, 125, 139, 0)
   );
-} 
+}

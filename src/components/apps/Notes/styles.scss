@@ -1,10 +1,18 @@
 .notes-app {
   height: 100%;
+  width: 100%;
   padding-right: 48px;
   display: flex;
   align-items: flex-start;
   font-size: 24px;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
+
+  // this is a hack to get around the fact that the footer
+  // on the todos app is done using "position: fixed" and somehow
+  // the width on it (set to inherit) actually inherits the specified
+  // parent's width (800px) while the parent gets flexified into a
+  // smaller width for some reason
+  z-index: 20;
 }
 
 .notes-editor {
